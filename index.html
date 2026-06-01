@@ -1,0 +1,823 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Norwegian Singles — Plan Generator</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #f0f4f8;
+      color: #1a2e44;
+      min-height: 100vh;
+      padding: 32px 16px 64px;
+    }
+
+    .container { max-width: 700px; margin: 0 auto; }
+
+    /* ── Header ── */
+    header { text-align: center; margin-bottom: 36px; }
+    header h1 { font-size: 26px; font-weight: 800; color: #0f2744; letter-spacing: -0.5px; }
+    header p  { font-size: 14px; color: #64748b; margin-top: 5px; }
+    .badge {
+      display: inline-block; margin-top: 10px;
+      font-size: 11px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase;
+      background: #0f2744; color: #93c5fd; padding: 4px 10px; border-radius: 20px;
+    }
+
+    /* ── Cards ── */
+    .card {
+      background: #fff;
+      border-radius: 14px;
+      padding: 24px;
+      margin-bottom: 14px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.07), 0 1px 2px rgba(0,0,0,0.04);
+    }
+    .card h2 {
+      font-size: 11px; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 1px;
+      color: #94a3b8; margin-bottom: 18px;
+    }
+
+    /* ── Form rows ── */
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 14px; }
+    .form-group { display: flex; flex-direction: column; gap: 6px; }
+    .form-group label { font-size: 13px; font-weight: 600; color: #475569; }
+
+    .input-wrap { position: relative; }
+    .input-wrap .unit {
+      position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
+      font-size: 13px; color: #94a3b8; pointer-events: none;
+    }
+
+    input[type="date"], input[type="number"], select {
+      width: 100%; padding: 10px 12px;
+      border: 1.5px solid #e2e8f0; border-radius: 9px;
+      font-size: 15px; color: #1a2e44; background: #fff;
+      outline: none; transition: border-color 0.15s;
+      appearance: none; -webkit-appearance: none;
+    }
+    input[type="number"] { padding-right: 36px; }
+    input[type="date"]:focus, input[type="number"]:focus, select:focus { border-color: #1e3a5f; }
+
+    .select-wrap { position: relative; }
+    .select-wrap::after {
+      content: '▾'; position: absolute; right: 11px; top: 50%;
+      transform: translateY(-50%); font-size: 12px; color: #94a3b8; pointer-events: none;
+    }
+    .select-wrap select { padding-right: 28px; cursor: pointer; }
+
+    /* ── Toggle ── */
+    .toggle-row {
+      display: flex; align-items: center;
+      justify-content: space-between;
+      padding: 13px 0;
+      border-top: 1px solid #f1f5f9;
+    }
+    .toggle-text .toggle-label  { font-size: 14px; font-weight: 600; color: #334155; }
+    .toggle-text .toggle-desc   { font-size: 12px; color: #94a3b8; margin-top: 2px; }
+
+    .toggle { position: relative; width: 44px; height: 24px; flex-shrink: 0; }
+    .toggle input { opacity: 0; width: 0; height: 0; }
+    .toggle-slider {
+      position: absolute; inset: 0;
+      background: #e2e8f0; border-radius: 24px;
+      cursor: pointer; transition: background 0.2s;
+    }
+    .toggle-slider::before {
+      content: ''; position: absolute;
+      width: 18px; height: 18px; left: 3px; top: 3px;
+      background: white; border-radius: 50%;
+      transition: transform 0.2s;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+    }
+    .toggle input:checked + .toggle-slider { background: #1e3a5f; }
+    .toggle input:checked + .toggle-slider::before { transform: translateX(20px); }
+
+    /* ── Day grid ── */
+    .day-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; }
+    .day-cell  { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+    .day-name  {
+      font-size: 11px; font-weight: 700;
+      color: #64748b; text-transform: uppercase; letter-spacing: 0.5px;
+    }
+
+    .day-select {
+      width: 100%; padding: 7px 4px;
+      border: 1.5px solid #e2e8f0; border-radius: 8px;
+      font-size: 11px; font-weight: 600; color: #475569;
+      background: #fff; cursor: pointer;
+      text-align: center; outline: none;
+      transition: border-color 0.15s, background 0.15s, color 0.15s;
+      appearance: none; -webkit-appearance: none;
+    }
+    .day-select.quality  { border-color: #ea580c; background: #fff7ed; color: #c2410c; }
+    .day-select.easy     { border-color: #16a34a; background: #f0fdf4; color: #15803d; }
+    .day-select.longrun  { border-color: #2563eb; background: #eff6ff; color: #1d4ed8; }
+    .day-select.rest     { border-color: #94a3b8; background: #f8fafc; color: #64748b; }
+
+    .assign-hint {
+      margin-top: 12px; font-size: 12px;
+      color: #94a3b8; text-align: center; line-height: 1.6;
+    }
+    .assign-hint strong { color: #475569; }
+
+    /* ── Slider ── */
+    .slider-group { display: flex; flex-direction: column; gap: 6px; }
+    .slider-group label { font-size: 13px; font-weight: 600; color: #475569; }
+    .slider-row { display: flex; align-items: center; gap: 10px; }
+    .slider-row input[type="range"] {
+      flex: 1; accent-color: #1e3a5f; height: 6px;
+      border: none; padding: 0; background: transparent;
+    }
+    .slider-val {
+      font-size: 16px; font-weight: 800; color: #1e3a5f;
+      min-width: 44px; text-align: right;
+    }
+
+    /* ── Button ── */
+    .generate-btn {
+      width: 100%; padding: 16px;
+      background: #0f2744; color: white;
+      border: none; border-radius: 12px;
+      font-size: 16px; font-weight: 700;
+      cursor: pointer; transition: background 0.15s, transform 0.1s;
+      margin-bottom: 24px; letter-spacing: 0.3px;
+    }
+    .generate-btn:hover  { background: #0a1e36; }
+    .generate-btn:active { transform: scale(0.99); }
+
+    /* ── Error ── */
+    .error-msg {
+      background: #fef2f2; border: 1px solid #fca5a5;
+      border-radius: 9px; padding: 12px 16px;
+      color: #dc2626; font-size: 13px;
+      margin-bottom: 14px;
+    }
+
+    /* ── Output card ── */
+    .output-card {
+      background: #0f2744;
+      border-radius: 14px;
+      padding: 28px 24px;
+      color: #cbd5e1;
+    }
+
+    .out-header { text-align: center; margin-bottom: 22px; padding-bottom: 18px; border-bottom: 1px solid #1e3a5f; }
+    .out-eyebrow {
+      font-size: 11px; font-weight: 700; letter-spacing: 2px;
+      color: #475569; text-transform: uppercase; margin-bottom: 4px;
+    }
+    .out-title {
+      font-size: 20px; font-weight: 800; color: #f1f5f9; letter-spacing: -0.3px;
+    }
+
+    .out-pills { display: flex; justify-content: center; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
+    .pill {
+      font-size: 11px; font-weight: 700; padding: 4px 10px;
+      border-radius: 20px; letter-spacing: 0.3px;
+    }
+    .pill-quality  { background: #431407; color: #fb923c; }
+    .pill-longrun  { background: #172554; color: #60a5fa; }
+    .pill-easy     { background: #052e16; color: #4ade80; }
+
+    /* ── Plan rows ── */
+    .plan-rows { display: flex; flex-direction: column; }
+
+    .plan-row {
+      display: grid;
+      grid-template-columns: 42px 76px 1fr;
+      gap: 10px; align-items: start;
+      padding: 13px 6px;
+      border-bottom: 1px solid #1a3052;
+    }
+    .plan-row:last-child { border-bottom: none; }
+
+    .row-day {
+      font-size: 11px; font-weight: 800;
+      color: #475569; text-transform: uppercase;
+      letter-spacing: 0.5px; padding-top: 3px;
+    }
+    .row-badge {
+      font-size: 10px; font-weight: 700;
+      padding: 3px 7px; border-radius: 5px;
+      text-align: center; text-transform: uppercase;
+      letter-spacing: 0.5px; white-space: nowrap;
+    }
+    .badge-quality  { background: #431407; color: #fb923c; }
+    .badge-easy     { background: #052e16; color: #4ade80; }
+    .badge-longrun  { background: #172554; color: #60a5fa; }
+    .badge-rest     { background: #1e293b; color: #475569; }
+
+    .row-body {}
+    .row-main {
+      font-size: 14px; font-weight: 700;
+      color: #f1f5f9; line-height: 1.4;
+    }
+    .row-sub  {
+      font-size: 12px; color: #64748b;
+      margin-top: 3px; line-height: 1.5;
+    }
+    .row-meta {
+      font-size: 11px; color: #334155;
+      margin-top: 2px;
+    }
+
+    /* ── Notes ── */
+    .out-notes {
+      margin-top: 20px; padding-top: 16px;
+      border-top: 1px solid #1e3a5f;
+    }
+    .notes-title {
+      font-size: 10px; font-weight: 700; letter-spacing: 1.5px;
+      text-transform: uppercase; color: #334155; margin-bottom: 10px;
+    }
+    .note {
+      font-size: 12px; color: #475569;
+      padding: 3px 0 3px 14px;
+      position: relative; line-height: 1.5;
+    }
+    .note::before { content: '›'; position: absolute; left: 0; color: #1e3a5f; font-weight: 700; }
+    .note-warn { color: #d97706; }
+    .note-warn::before { content: '!'; color: #d97706; }
+
+    .copy-btn {
+      width: 100%; margin-top: 10px; padding: 12px;
+      background: transparent; color: #475569;
+      border: 1.5px solid #334155; border-radius: 10px;
+      font-size: 13px; font-weight: 600; cursor: pointer;
+      transition: all 0.15s; letter-spacing: 0.3px;
+    }
+    .copy-btn:hover  { background: #1e293b; color: #cbd5e1; border-color: #64748b; }
+    .copy-btn.copied { background: #14532d; color: #4ade80; border-color: #16a34a; }
+
+    .hidden { display: none; }
+
+    @media (max-width: 560px) {
+      .form-row { grid-template-columns: 1fr; }
+      .day-grid  { grid-template-columns: repeat(4, 1fr); }
+      .plan-row  { grid-template-columns: 36px 68px 1fr; gap: 7px; }
+      .row-main  { font-size: 13px; }
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+
+  <header>
+    <h1>Norwegian Singles</h1>
+    <p>Weekly Training Plan Generator</p>
+    <span class="badge">Sub-Threshold Method</span>
+  </header>
+
+  <!-- ── Step 1: Weekly Setup ── -->
+  <div class="card">
+    <h2>1. Weekly Setup</h2>
+    <div class="form-row">
+      <div class="form-group">
+        <label for="weeklyKm">Target Weekly Volume</label>
+        <div class="input-wrap">
+          <input type="number" id="weeklyKm" min="20" max="250" value="60" step="1">
+          <span class="unit">km</span>
+        </div>
+      </div>
+      <div class="form-group">
+        <label for="numQuality">Quality Sessions / Week</label>
+        <div class="select-wrap">
+          <select id="numQuality" onchange="onSettingsChange()">
+            <option value="2">2 sessions</option>
+            <option value="3" selected>3 sessions</option>
+          </select>
+        </div>
+      </div>
+    </div>
+    <div class="form-group" style="margin-bottom:14px">
+      <label for="weekStart">Week Starting (Monday)</label>
+      <input type="date" id="weekStart">
+    </div>
+    <div class="toggle-row">
+      <div class="toggle-text">
+        <div class="toggle-label">Include a Rest Day</div>
+        <div class="toggle-desc">Replaces one easy day with full recovery</div>
+      </div>
+      <label class="toggle">
+        <input type="checkbox" id="hasRestDay" onchange="onSettingsChange()">
+        <span class="toggle-slider"></span>
+      </label>
+    </div>
+  </div>
+
+  <!-- ── Step 2: Day Assignment ── -->
+  <div class="card">
+    <h2>2. Assign Your Days</h2>
+    <div class="day-grid" id="dayGrid"></div>
+    <p class="assign-hint" id="assignHint"></p>
+  </div>
+
+  <!-- ── Step 3: Preferences ── -->
+  <div class="card">
+    <h2>3. Preferences</h2>
+    <div class="form-row">
+      <div class="form-group">
+        <label for="raceDistance">Target Race Distance</label>
+        <div class="select-wrap">
+          <select id="raceDistance">
+            <option value="5k">5k</option>
+            <option value="10k">10k</option>
+            <option value="hm" selected>Half Marathon</option>
+            <option value="marathon">Marathon</option>
+            <option value="ultra">Ultra / Trail</option>
+          </select>
+        </div>
+      </div>
+      <div class="slider-group">
+        <label>Long Run — % of Weekly Volume</label>
+        <div class="slider-row">
+          <input type="range" id="longRunPct" min="20" max="30" value="25" step="1"
+                 oninput="document.getElementById('longRunPctVal').textContent = this.value + '%'">
+          <span class="slider-val" id="longRunPctVal">25%</span>
+        </div>
+      </div>
+    </div>
+    <div class="toggle-row">
+      <div class="toggle-text">
+        <div class="toggle-label">Double Easy on Easy Days</div>
+        <div class="toggle-desc">Splits easy km into AM + PM runs (volume stays the same)</div>
+      </div>
+      <label class="toggle">
+        <input type="checkbox" id="doubleEasy">
+        <span class="toggle-slider"></span>
+      </label>
+    </div>
+  </div>
+
+  <div id="errorMsg" class="error-msg hidden"></div>
+
+  <button class="generate-btn" onclick="generatePlan()">Generate Weekly Plan →</button>
+
+  <!-- ── Output ── -->
+  <div id="output" class="hidden">
+    <div class="output-card" id="outputCard"></div>
+    <button class="copy-btn" id="copyBtn" onclick="copyPlan()">Copy Plan as Text</button>
+  </div>
+
+</div>
+
+<script>
+  /* ─────────────────────────────────────────
+     CONSTANTS
+  ───────────────────────────────────────── */
+  let lastPlan = null;
+
+  const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+
+  function getNextMonday() {
+    const d = new Date();
+    const day = d.getDay();
+    const add = day === 1 ? 0 : day === 0 ? 1 : 8 - day;
+    d.setDate(d.getDate() + add);
+    return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+  }
+
+  function getWeekRange(iso) {
+    const [y, m, d] = iso.split('-').map(Number);
+    const mon = new Date(y, m - 1, d);
+    const sun = new Date(y, m - 1, d + 6);
+    return `${mon.getDate()} ${MONTHS[mon.getMonth()]} – ${sun.getDate()} ${MONTHS[sun.getMonth()]} ${sun.getFullYear()}`;
+  }
+
+  const DAYS = ['mon','tue','wed','thu','fri','sat','sun'];
+  const DAY_SHORT = { mon:'MON', tue:'TUE', wed:'WED', thu:'THU', fri:'FRI', sat:'SAT', sun:'SUN' };
+
+  // Default assignments: E-Q-E-Q-E-Q-LR
+  const DEFAULT_ASSIGN = { mon:'easy', tue:'quality', wed:'easy', thu:'quality', fri:'easy', sat:'quality', sun:'longrun' };
+
+  const RACE_LABELS = {
+    '5k':'5k', '10k':'10k', 'hm':'Half Marathon', 'marathon':'Marathon', 'ultra':'Ultra / Trail'
+  };
+
+  const WARMUP_KM   = 2;
+  const COOLDOWN_KM = 1;
+
+  // [session0=shortest, session1=medium, session2=longest] per race distance
+  const INTERVAL_CFG = {
+    '5k': [
+      { dist:1000, pace:'10k – 15k pace',   rest:'60s' },
+      { dist:1600, pace:'~10 mile pace',    rest:'60 – 90s' },
+      { dist:2000, pace:'HM pace',          rest:'90s' }
+    ],
+    '10k': [
+      { dist:1000, pace:'10k – 15k pace',   rest:'60s' },
+      { dist:2000, pace:'HM – 25k pace',    rest:'90s' },
+      { dist:3000, pace:'25k – 30k pace',   rest:'120s' }
+    ],
+    'hm': [
+      { dist:1600, pace:'~10 mile pace',    rest:'60 – 90s' },
+      { dist:2000, pace:'HM pace',          rest:'90s' },
+      { dist:3000, pace:'25k – 30k pace',   rest:'120s' }
+    ],
+    'marathon': [
+      { dist:2000, pace:'HM – 25k pace',    rest:'90s' },
+      { dist:3000, pace:'25k – 30k pace',   rest:'120s' },
+      { dist:5000, pace:'30k – 42k pace',   rest:'120s' }
+    ],
+    'ultra': [
+      { dist:1000, pace:'10k – 15k pace',   rest:'60s'      },
+      { dist:1600, pace:'~10 mile pace',    rest:'60 – 90s' },
+      { dist:2000, pace:'HM – 25k pace',    rest:'90s'      },
+      { dist:3000, pace:'30k+ pace',        rest:'120s'     },
+      { dist:5000, pace:'trail/race pace',  rest:'120s'     }
+    ]
+  };
+
+  /* ─────────────────────────────────────────
+     DAY GRID — BUILD & UPDATE
+  ───────────────────────────────────────── */
+  function buildDayGrid() {
+    const grid = document.getElementById('dayGrid');
+    grid.innerHTML = '';
+    DAYS.forEach(d => {
+      const saved = grid._saved?.[d] ?? DEFAULT_ASSIGN[d];
+      grid.insertAdjacentHTML('beforeend', `
+        <div class="day-cell">
+          <span class="day-name">${d.slice(0,3)}</span>
+          <select class="day-select ${saved}" id="day-${d}"
+                  onchange="updateDayColor(this)">
+            <option value="easy"    ${saved==='easy'?'selected':''}>Easy</option>
+            <option value="quality" ${saved==='quality'?'selected':''}>Quality</option>
+            <option value="longrun" ${saved==='longrun'?'selected':''}>Long Run</option>
+            <option value="rest"    ${saved==='rest'?'selected':''} id="rest-opt-${d}">Rest</option>
+          </select>
+        </div>
+      `);
+    });
+    syncRestOptions();
+    updateHint();
+  }
+
+  function syncRestOptions() {
+    const enabled = document.getElementById('hasRestDay').checked;
+    DAYS.forEach(d => {
+      const opt = document.getElementById(`rest-opt-${d}`);
+      if (!opt) return;
+      opt.disabled = !enabled;
+      if (!enabled) {
+        const sel = document.getElementById(`day-${d}`);
+        if (sel && sel.value === 'rest') { sel.value = 'easy'; updateDayColor(sel); }
+      }
+    });
+  }
+
+  function updateDayColor(sel) {
+    sel.className = `day-select ${sel.value}`;
+  }
+
+  function updateHint() {
+    const n = document.getElementById('numQuality').value;
+    const hasRest = document.getElementById('hasRestDay').checked;
+    const restPart = hasRest ? ' · <strong>1 Rest</strong>' : '';
+    document.getElementById('assignHint').innerHTML =
+      `Need: <strong>${n} Quality</strong> · <strong>1 Long Run</strong>${restPart} · remaining days = Easy`;
+  }
+
+  function onSettingsChange() {
+    // Save current values before rebuild
+    const saved = {};
+    DAYS.forEach(d => {
+      const el = document.getElementById(`day-${d}`);
+      if (el) saved[d] = el.value;
+    });
+    const grid = document.getElementById('dayGrid');
+    grid._saved = saved;
+    syncRestOptions();
+    updateHint();
+  }
+
+  /* ─────────────────────────────────────────
+     HELPERS
+  ───────────────────────────────────────── */
+  function fmt(km) {
+    return Number.isInteger(km) ? km.toString() : km.toFixed(1);
+  }
+
+  function distLabel(m) {
+    return m < 2000 ? `${m}m` : `${m / 1000}km`;
+  }
+
+  function showError(msg) {
+    const el = document.getElementById('errorMsg');
+    el.textContent = msg;
+    el.classList.remove('hidden');
+    el.scrollIntoView({ behavior:'smooth', block:'center' });
+  }
+
+  /* ─────────────────────────────────────────
+     WORKOUT SELECTOR
+  ───────────────────────────────────────── */
+
+  // All k-size combinations from arr (order preserved)
+  function getCombinations(arr, k) {
+    if (k === 0) return [[]];
+    if (arr.length < k) return [];
+    const [head, ...tail] = arr;
+    return [
+      ...getCombinations(tail, k - 1).map(c => [head, ...c]),
+      ...getCombinations(tail, k)
+    ];
+  }
+
+  // Tries every combination of numSessions distinct distances from the race pool.
+  // Picks the combo whose summed actual km is closest to totalQualityKm (25% target).
+  // Ties broken by preferring the widest distance spread (most variety).
+  function selectAllWorkouts(totalQualityKm, race, numSessions) {
+    const pool    = INTERVAL_CFG[race];
+    const sessKm  = totalQualityKm / numSessions;
+    const combos  = getCombinations(pool, numSessions);
+
+    let bestCombo  = null;
+    let bestError  = Infinity;
+    let bestSpread = 0;
+
+    for (const combo of combos) {
+      const sorted = [...combo].sort((a, b) => a.dist - b.dist);
+      let total = 0;
+      for (const cfg of sorted) {
+        const reps = Math.max(1, Math.round((sessKm * 1000) / cfg.dist));
+        total += reps * cfg.dist / 1000;
+      }
+      const error  = Math.abs(total - totalQualityKm);
+      const spread = sorted[sorted.length - 1].dist - sorted[0].dist;
+
+      if (error < bestError || (error === bestError && spread > bestSpread)) {
+        bestError  = error;
+        bestSpread = spread;
+        bestCombo  = sorted;
+      }
+    }
+
+    return bestCombo.map(cfg => {
+      const reps = Math.max(1, Math.round((sessKm * 1000) / cfg.dist));
+      return {
+        reps,
+        dist:    cfg.dist,
+        label:   distLabel(cfg.dist),
+        pace:    cfg.pace,
+        rest:    cfg.rest,
+        totalKm: parseFloat((reps * cfg.dist / 1000).toFixed(1))
+      };
+    });
+  }
+
+  /* ─────────────────────────────────────────
+     MAIN GENERATE
+  ───────────────────────────────────────── */
+  function generatePlan() {
+    document.getElementById('errorMsg').classList.add('hidden');
+    document.getElementById('output').classList.add('hidden');
+
+    // ── Inputs ──
+    const weeklyKm   = parseFloat(document.getElementById('weeklyKm').value);
+    const numQuality = parseInt(document.getElementById('numQuality').value);
+    const hasRestDay = document.getElementById('hasRestDay').checked;
+    const doubleEasy = document.getElementById('doubleEasy').checked;
+    const longRunPct = parseInt(document.getElementById('longRunPct').value) / 100;
+    const race       = document.getElementById('raceDistance').value;
+
+    if (isNaN(weeklyKm) || weeklyKm < 20) {
+      showError('Enter a valid weekly volume (min 20 km).'); return;
+    }
+
+    // ── Day assignments ──
+    const assign = DAYS.map(d => document.getElementById(`day-${d}`).value);
+
+    const countOf = type => assign.filter(a => a === type).length;
+    const qCount  = countOf('quality');
+    const lrCount = countOf('longrun');
+    const rCount  = countOf('rest');
+
+    if (qCount !== numQuality) {
+      showError(`Assign exactly ${numQuality} Quality day(s). Currently: ${qCount}.`); return;
+    }
+    if (lrCount !== 1) {
+      showError(`Assign exactly 1 Long Run day. Currently: ${lrCount}.`); return;
+    }
+    if (hasRestDay && rCount !== 1) {
+      showError(`You enabled a rest day — assign exactly 1 Rest day. Currently: ${rCount}.`); return;
+    }
+    if (!hasRestDay && rCount > 0) {
+      showError('Rest day is assigned but the toggle is off. Enable it or change that day to Easy.'); return;
+    }
+
+    // ── Mileage split ──
+    const longRunKm = parseFloat((weeklyKm * longRunPct).toFixed(1));
+
+    // Pick best-fitting interval formats across all sessions simultaneously,
+    // minimising deviation from the 25% quality target.
+    const preWorkouts = selectAllWorkouts(weeklyKm * 0.25, race, numQuality);
+    const actualQualityKm  = parseFloat(preWorkouts.reduce((s, w) => s + w.totalKm, 0).toFixed(1));
+    const wuCdTotal        = parseFloat(((WARMUP_KM + COOLDOWN_KM) * numQuality).toFixed(1));
+    const easyDays         = countOf('easy');
+    const easyTotalKm      = parseFloat((weeklyKm - longRunKm - actualQualityKm - wuCdTotal).toFixed(1));
+    const easyPerDayKm     = easyDays > 0 ? parseFloat((easyTotalKm / easyDays).toFixed(1)) : 0;
+
+    // ── Build day plans ──
+    let qIdx = 0;
+    const dayPlans = DAYS.map((d, i) => {
+      const type = assign[i];
+      const label = DAY_SHORT[d];
+      let main, sub, meta;
+
+      if (type === 'quality') {
+        const w        = preWorkouts[qIdx++];
+        const totalDay = parseFloat((WARMUP_KM + w.totalKm + COOLDOWN_KM).toFixed(1));
+        main     = `${w.reps} × ${w.label}`;
+        sub      = `@ ${w.pace}  ·  ${w.rest} rest`;
+        meta     = `~${w.totalKm}km intervals  ·  ~${totalDay}km total day`;
+        // attach warm-up / cool-down to be rendered separately
+        return { label, type,
+          warmup:   `${WARMUP_KM}km warm-up (easy)`,
+          main, sub,
+          cooldown: `${COOLDOWN_KM}km cool-down (easy)`,
+          meta
+        };
+      } else if (type === 'easy') {
+        if (doubleEasy) {
+          const am = parseFloat((easyPerDayKm * 0.6).toFixed(1));
+          const pm = parseFloat((easyPerDayKm - am).toFixed(1));
+          main = `${fmt(am)}km easy (AM)  +  ${fmt(pm)}km easy (PM)`;
+          sub  = 'Below 70% Max HR  ·  Double day';
+          meta = `${fmt(easyPerDayKm)}km total`;
+        } else {
+          main = `${fmt(easyPerDayKm)}km easy run`;
+          sub  = 'Below 70% Max HR';
+        }
+      } else if (type === 'longrun') {
+        main = `${fmt(longRunKm)}km long run`;
+        sub  = `Easy pace · Below 70% Max HR · ${Math.round(longRunPct * 100)}% of weekly volume`;
+      } else {
+        main = 'Rest day';
+        sub  = 'Full recovery';
+      }
+
+      return { label, type, main, sub, meta };
+    });
+
+    const allEasyKm = parseFloat((easyTotalKm + wuCdTotal).toFixed(1));
+
+    // Doc: 8-9 hours/week is the ceiling without doubles (~80km at avg 6:00/km easy pace)
+    const showVolumeWarning = weeklyKm >= 80 && !doubleEasy;
+    // Doc: 75-90 min long run is sufficient for 5k-HM focus (~15km at 6:00/km)
+    const showLongRunWarning = ['5k','10k','hm'].includes(race) && longRunKm > 15;
+
+    const weekStart  = document.getElementById('weekStart').value || getNextMonday();
+    const weekRange  = getWeekRange(weekStart);
+    lastPlan = { weeklyKm, numQuality, race, longRunKm, longRunPct, actualQualityKm, allEasyKm, dayPlans, showVolumeWarning, showLongRunWarning, weekRange };
+    renderOutput(lastPlan);
+  }
+
+  /* ─────────────────────────────────────────
+     RENDER OUTPUT
+  ───────────────────────────────────────── */
+  function renderOutput({ weeklyKm, numQuality, race, longRunKm, longRunPct, actualQualityKm, allEasyKm, dayPlans, showVolumeWarning, showLongRunWarning, weekRange }) {
+    const qPct  = Math.round((actualQualityKm / weeklyKm) * 100);
+    const ePct  = Math.round((allEasyKm       / weeklyKm) * 100);
+    const lrPct = Math.round(longRunPct * 100);
+
+    const typeLabel = { quality:'QUALITY', easy:'EASY', longrun:'LONG RUN', rest:'REST' };
+
+    const rowsHTML = dayPlans.map(p => `
+      <div class="plan-row">
+        <span class="row-day">${p.label}</span>
+        <span class="row-badge badge-${p.type}">${typeLabel[p.type]}</span>
+        <div class="row-body">
+          ${p.warmup   ? `<div class="row-sub">${p.warmup}</div>`   : ''}
+          <div class="row-main">${p.main}</div>
+          ${p.sub      ? `<div class="row-sub">${p.sub}</div>`      : ''}
+          ${p.cooldown ? `<div class="row-sub">${p.cooldown}</div>` : ''}
+          ${p.meta     ? `<div class="row-meta">${p.meta}</div>`    : ''}
+        </div>
+      </div>
+    `).join('');
+
+    const ultraNote = race === 'ultra'
+      ? '<div class="note">Ultra / Trail: prefer hill terrain for quality sessions where possible</div>'
+      : '';
+
+    document.getElementById('outputCard').innerHTML = `
+      <div class="out-header">
+        <div class="out-eyebrow">Norwegian Singles · ${weekRange}</div>
+        <div class="out-title">${weeklyKm}km Week · ${RACE_LABELS[race]} · ${numQuality}× Quality</div>
+        <div class="out-pills">
+          <span class="pill pill-quality">Quality ${qPct}% · ${fmt(actualQualityKm)}km</span>
+          <span class="pill pill-longrun">Long Run ${lrPct}% · ${fmt(longRunKm)}km</span>
+          <span class="pill pill-easy">Easy ${ePct}% · ${fmt(allEasyKm)}km</span>
+        </div>
+      </div>
+
+      <div class="plan-rows">${rowsHTML}</div>
+
+      <div class="out-notes">
+        <div class="notes-title">Key Reminders</div>
+        <div class="note">Quality sessions: RPE 5–6 / 10 — "comfortably hard", never above LT2</div>
+        <div class="note">Easy runs: below 70% Max HR — slow down or walk hills if needed</div>
+        <div class="note">Interval rest: standing, walking, or slow jog — keep it short</div>
+        <div class="note">Race or 5k time trial every 4–8 weeks to update target paces</div>
+        <div class="note">Allow 4–8 weeks to adapt; significant breakthroughs typically after 3–6 months</div>
+        ${ultraNote}
+        ${showVolumeWarning ? '<div class="note note-warn">Above ~80km/week: add easy doubles rather than extending single runs — injury risk rises at this volume</div>' : ''}
+        ${showLongRunWarning ? '<div class="note note-warn">Doc suggests 75–90 min is sufficient for 5k–HM focus — consider reducing your long run %</div>' : ''}
+      </div>
+    `;
+
+    document.getElementById('output').classList.remove('hidden');
+    document.getElementById('output').scrollIntoView({ behavior:'smooth' });
+  }
+
+  /* ─────────────────────────────────────────
+     COPY AS TEXT
+  ───────────────────────────────────────── */
+  function buildPlanText(plan) {
+    const { weeklyKm, numQuality, race, longRunKm, longRunPct,
+            actualQualityKm, allEasyKm, dayPlans,
+            showVolumeWarning, showLongRunWarning, weekRange } = plan;
+
+    const qPct  = Math.round((actualQualityKm / weeklyKm) * 100);
+    const ePct  = Math.round((allEasyKm        / weeklyKm) * 100);
+    const lrPct = Math.round(longRunPct * 100);
+
+    const DAY_FULL = { MON:'Mon', TUE:'Tue', WED:'Wed', THU:'Thu', FRI:'Fri', SAT:'Sat', SUN:'Sun' };
+
+    const rows = dayPlans.map(p => {
+      const day = DAY_FULL[p.label];
+      if (p.type === 'quality') {
+        return `*${day}* 🔥 Quality\n  ${p.warmup}\n  ${p.main} ${p.sub}\n  ${p.cooldown}`;
+      }
+      if (p.type === 'easy') {
+        const km = p.main
+          .replace(' easy run', '')
+          .replace(' easy (AM)', 'AM')
+          .replace(' easy (PM)', 'PM')
+          .replace('  +  ', ' + ');
+        return `*${day}* Easy — ${km}`;
+      }
+      if (p.type === 'longrun') return `*${day}* 🏔 Long Run — ${fmt(longRunKm)}km easy`;
+      if (p.type === 'rest')    return `*${day}* Rest 😴`;
+    });
+
+    const warnings = [];
+    if (showVolumeWarning)  warnings.push('⚠ Above ~80km/week: switch to easy doubles');
+    if (showLongRunWarning) warnings.push('⚠ 5k–HM focus: 75–90 min long run is enough');
+
+    return [
+      `🏃 *Norwegian Singles — ${weekRange}*`,
+      `${weeklyKm}km · ${RACE_LABELS[race]} · ${numQuality}× Quality`,
+      '',
+      `🟠 Quality ${qPct}% · ${fmt(actualQualityKm)}km`,
+      `🔵 Long Run ${lrPct}% · ${fmt(longRunKm)}km`,
+      `🟢 Easy ${ePct}% · ${fmt(allEasyKm)}km`,
+      '',
+      ...rows,
+      '',
+      `💡 Quality = RPE 5-6/10 · Easy = <70% max HR · TT every 4-8 weeks`,
+      ...warnings,
+    ].join('\n');
+  }
+
+  async function copyPlan() {
+    if (!lastPlan) return;
+    const text = buildPlanText(lastPlan);
+    const btn  = document.getElementById('copyBtn');
+
+    try {
+      await navigator.clipboard.writeText(text);
+    } catch {
+      // Fallback for older browsers
+      const ta = Object.assign(document.createElement('textarea'),
+        { value: text, style: 'position:fixed;opacity:0' });
+      document.body.appendChild(ta);
+      ta.select();
+      document.execCommand('copy');
+      document.body.removeChild(ta);
+    }
+
+    btn.textContent = '✓ Copied!';
+    btn.classList.add('copied');
+    setTimeout(() => {
+      btn.textContent = 'Copy Plan as Text';
+      btn.classList.remove('copied');
+    }, 2000);
+  }
+
+  /* ─────────────────────────────────────────
+     INIT
+  ───────────────────────────────────────── */
+  document.addEventListener('DOMContentLoaded', () => {
+    document.getElementById('weekStart').value = getNextMonday();
+    buildDayGrid();
+    updateHint();
+  });
+</script>
+</body>
+</html>
