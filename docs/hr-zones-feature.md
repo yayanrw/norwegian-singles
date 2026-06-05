@@ -1,28 +1,27 @@
-# HR Zone Calculator (LTHR-based) — Implementation Plan
+# HR Zone Calculator (FTHR-based) — Implementation Plan
 
 ## Context
 
-The Norwegian Singles method references heart rate constantly — easy runs capped below 70% HRmax, quality sessions held just below LTHR (the LT2 proxy). But the app has no tool to translate a runner's heart rate into actionable zones. This feature adds a **third page** that maps a runner's **5 HR zones** from a single field input: their **LTHR** (Lactate Threshold Heart Rate from Friel's 30-min test).
+The Norwegian Singles method references heart rate constantly — easy runs capped below ~70% HRmax, quality sessions held just below the lactate threshold. But the app has no tool to translate a runner's heart rate into actionable zones. This feature adds a **third page** that maps a runner's **5 HR zones** from a single field input: their **FTHR** (Functional Threshold Heart Rate from a 20-min time trial).
 
-LTHR is chosen as the anchor because it directly measures LT2 — the exact intensity Norwegian Singles is built around — making its zones individualized rather than a generic % of HRmax. From LTHR alone the app derives all 5 zones plus an estimated HRmax and the NS easy-run ceiling.
+FTHR is chosen because it directly correlates with the Lactate Threshold — the exact intensity Norwegian Singles is built around — and the test is practical (20 min, no lab). From FTHR the app derives all 5 zones plus key NS reference values (easy ceiling, quality target range, quality hard cap).
 
-### Scope (locked with user)
-- **Single primary input:** LTHR in bpm. No multi-path race-estimate input, no separate HRmax input.
-- **One refining input:** Training status (improves the derived HRmax estimate only).
-- **Method:** Friel 30-min TT zones (% of LTHR) — Method 2 from brainstorm.
+### Scope
+- **Single primary input:** FTHR in bpm (user runs the 20-min TT, computes avg × 0.95, inputs the result). No separate HRmax input, no race-estimate path.
+- **Method:** FTHR 5-zone model (% of FTHR). Zones: Z1 Recovery · Z2 Endurance · Z3 Steady State · Z4 Lactate Threshold · Z5 VO2 Max.
 - **Output:** Visual 5-zone bar with **Norwegian Singles annotations** baked into each zone.
-- **Guidance:** Collapsible "How to do the test" + "When to retest" sections.
+- **Guidance:** Collapsible "How to perform the FTHR test" + "When to retest" sections.
 - Stateless, self-scheduled — consistent with the rest of the app.
 
 ---
 
 ## Approach
 
-Build a **new standalone `hr-zones.html`** (single self-contained file: inline `<style>` + inline `<script>`, no build step, no dependencies — same architecture as `index.html` and `strength.html`). Extend the shared nav bar on **all three pages** to include the new page.
+Refactor the existing `hr-zones.html` (already created). Update calculation logic, zone labels, zone percentages, NS annotations, derived values, and test guidance text. No structural changes to HTML/CSS — reuse all UI patterns.
 
 ### Files
-- **New:** `/Users/yayanrahmatwijaya/Herd/norwegian-singles/hr-zones.html`
-- **Edit:** `index.html` and `strength.html` — add a third nav link only (no logic changes).
+- **Edit:** `hr-zones.html` — update JS constants, zone definitions, render logic, guidance text.
+- **No changes needed:** `index.html`, `strength.html` (nav already has HR Zones link).
 
 ---
 
@@ -30,130 +29,142 @@ Build a **new standalone `hr-zones.html`** (single self-contained file: inline `
 
 | Input | Type | Purpose | Required |
 |---|---|---|---|
-| LTHR (bpm) | number stepper / field | Anchor for all 5 zones | Yes |
-| Training status | 3-option segmented toggle | Refines estimated HRmax → easy ceiling | Yes (default: Trained) |
+| FTHR (bpm) | number stepper (− / value / +) | Anchor for all 5 zones | Yes |
 
-Validation: LTHR must be in a plausible range (**120–210 bpm**) or show a friendly error via the existing `showError` pattern.
+**Drop:** Training status pill toggle — no longer needed. HRmax estimation is not required since the easy ceiling is derived directly from FTHR.
+
+**Validation:** FTHR must be in a plausible range (**100–200 bpm**) or show a friendly error.
 
 ---
 
 ## Calculation Logic
 
-### 1. Friel 5-zone split (% of LTHR)
+### 1. FTHR test → input value
+The user performs a 20-min TT, records average HR, computes `FTHR = avgHR × 0.95`, and enters the result into the stepper. The app treats FTHR as a direct input.
+
+### 2. FTHR 5-zone split (% of FTHR)
+
 ```js
 const ZONES = [
-  { z:'Z1', label:'Recovery',       lo:0.00, hi:0.85 },
-  { z:'Z2', label:'Aerobic',        lo:0.85, hi:0.90 },
-  { z:'Z3', label:'Sub-Threshold',  lo:0.90, hi:0.95 },
-  { z:'Z4', label:'Threshold',      lo:0.95, hi:1.00 },
-  { z:'Z5', label:'VO2max+',        lo:1.00, hi:Infinity },
+  { z:'Z1', label:'Recovery',           lo:0.00,  hi:0.68  },
+  { z:'Z2', label:'Endurance',          lo:0.69,  hi:0.83  },
+  { z:'Z3', label:'Steady State',       lo:0.84,  hi:0.94  },
+  { z:'Z4', label:'Lactate Threshold',  lo:0.95,  hi:1.05  },
+  { z:'Z5', label:'VO2 Max',            lo:1.06,  hi:null   },
 ];
 ```
-Convert each ratio to bpm and make the integer boundaries contiguous (each zone starts at previous zone's upper bound + 1; Z1 shown as "< X bpm", Z5 as "≥ LTHR bpm").
 
-### 2. Estimated HRmax (training-status dependent ratio)
-```js
-const HRMAX_RATIO = { recreational:0.86, trained:0.88, highly:0.91 };
-estHRmax = Math.round(LTHR / HRMAX_RATIO[status]);
-```
-Label clearly as an **estimate (±5–10 bpm)**, not a measured value.
+Zone boundaries are non-overlapping with a 1-bpm gap between zones (matching the source definition: "< 68%" / "69–83%" / etc). Convert each ratio to bpm:
+- Z1: `< Math.floor(FTHR × 0.68) + 1 bpm` → display "< X bpm"
+- Z2: `Math.round(FTHR × 0.69)` → `Math.round(FTHR × 0.83)` → display "A–B bpm"
+- Z3: `Math.round(FTHR × 0.84)` → `Math.round(FTHR × 0.94)`
+- Z4: `Math.round(FTHR × 0.95)` → `Math.round(FTHR × 1.05)`
+- Z5: `> Math.round(FTHR × 1.06)` → display "> X bpm"
 
 ### 3. Derived NS reference values
+
 | Value | Formula | NS meaning |
 |---|---|---|
-| Estimated HRmax | `LTHR ÷ ratio` | Derived anchor |
-| Easy run ceiling | `0.70 × estHRmax` | All non-quality runs stay below |
-| Quality target | `0.90–0.95 × LTHR` | The sub-threshold sweet spot |
-| Quality hard cap | `1.00 × LTHR` | Never consistently exceed at end of final rep |
+| FTHR | user input | Threshold anchor |
+| Easy run ceiling | `~80% × FTHR` | Approximation of 70% HRmax; stay below on all non-quality days |
+| Quality target | `84–94% × FTHR` | Z3 range — the sub-threshold sweet spot |
+| Quality hard cap | `= FTHR` (100% FTHR) | Never consistently exceed at end of final rep |
+
+Note: the easy ceiling is displayed with a disclaimer: "≈ 70% HRmax estimate". Z2 (69–83%) already overlaps with easy territory — the ceiling sits near the Z2/Z3 boundary.
 
 ---
 
-## Norwegian Singles Zone Mapping (the core differentiator)
+## Norwegian Singles Zone Mapping (core differentiator)
 
-Each zone in the output carries an NS role annotation:
+Each zone row in the output carries an NS role annotation:
 
-| Zone | % LTHR | NS Role | Annotation |
+| Zone | % FTHR | NS Role | Annotation |
 |---|---|---|---|
-| Z1 Recovery | < 85% | Easy / Recovery | Target for all non-quality runs |
-| Z2 Aerobic | 85–89% | Easy / Long run | Upper limit of easy effort |
-| Z3 Sub-Threshold | 90–94% | **Quality target** | High Z3 = the NS sweet spot ★ |
-| Z4 Threshold | 95–99% | **Quality ceiling** | Low Z4 OK — LTHR is the hard cap |
-| Z5 VO2max+ | ≥ 100% | Off-limits | Avoided entirely in NS |
+| Z1 Recovery | < 68% | Easy / Recovery | Comfortable recovery — use for warm-ups and cooldowns |
+| Z2 Endurance | 69–83% | Easy / Aerobic | Target zone for easy and long runs — stay in low-to-mid Z2 |
+| Z3 Steady State | 84–94% | **Quality Target ★** | Sub-threshold sweet spot — the heart of Norwegian Singles |
+| Z4 Lactate Threshold | 95–105% | **Quality Ceiling** | Low Z4 (95–99%) acceptable — above FTHR (>100%) enters VO2max territory, avoid in NS |
+| Z5 VO2 Max | > 106% | Off-Limits | Avoided entirely in Norwegian Singles training |
 
-Z3 (and low Z4) are visually highlighted as the quality target band.
+**Critical NS note for Z4:** The zone extends from 95% to 105% FTHR — meaning the upper half of Z4 is already *above* threshold. Norwegian Singles targets staying *below* FTHR. Low Z4 is the ceiling, not the target. Display a callout making this boundary explicit.
+
+Z3 is visually highlighted as the quality target band. The FTHR value (= Z4 low boundary) is marked on the zone bar as the hard cap.
 
 ---
 
-## UI / Visual Design (distinct from the other two pages)
+## UI / Visual Design
 
-Run page = light + cool navy. Strength page = dark + warm amber. **HR Zones page = light "clinical/cardio" theme with a crimson-rose accent**, and a multicolor **zone gradient bar** as the hero element (blue → green → yellow → orange → red), so it reads instantly as a heart-rate tool.
+No theme changes — light clinical theme (`#fafafa` bg, white cards, rose `#e11d48`) stays. Changes:
 
-| Element | Value |
+1. **Remove** training status pill toggle from inputs card.
+2. **Relabel** stepper from "LTHR" to "FTHR".
+3. **Update** output card: derived values panel replaces "Est. HRmax" stat with "FTHR" (input echo), adjust other stats.
+4. **Add** a Z4 warning note (small inline callout): "Above FTHR (> 100% FTHR) = VO2max territory — NS stays below."
+5. **Zone bar proportional flex widths** — update to reflect new zone widths:
+   - Z1 (68% of FTHR range): `flex: 3.5`
+   - Z2 (14% band): `flex: 1.5`
+   - Z3 (10% band): `flex: 1.5` (quality zone, slightly wider for emphasis)
+   - Z4 (10% band): `flex: 1.5`
+   - Z5 (open): `flex: 1`
+
+Zone colors unchanged: Z1 `#3b82f6` · Z2 `#22c55e` · Z3 `#eab308` · Z4 `#f97316` · Z5 `#ef4444`
+
+---
+
+## Test Guidance (updated text)
+
+### "How to perform the FTHR test" (collapsible)
+
+1. **Choose your route.** Flat track, flat road, or treadmill. Hills and traffic distort pacing and HR.
+2. **Use a chest strap (HRM).** Wrist-based HR is unreliable at high intensities. External HRM is significantly more accurate.
+3. **Warm up 10+ minutes.** Easy run + dynamic stretching or running drills. Rest 2–3 min before starting.
+4. **Run as hard as you can sustain for 20 minutes** — a hard, steady time-trial effort. Start conservatively for the first 5 min, assess every 5 min. Most people go too hard early and fade; a fading effort gives inaccurate data.
+5. **Record average HR for the full 20 minutes.** This is your raw test number.
+6. **Calculate FTHR: multiply by 0.95.** `FTHR = avg20min × 0.95`. Enter this value into the stepper.
+
+Tip box: "Example: avg HR 185 bpm → FTHR = 185 × 0.95 = **176 bpm**."
+
+### "When to retest" (collapsible)
+
+| Situation | Action |
 |---|---|
-| Background | `#fafafa` clean off-white |
-| Cards | white with subtle border |
-| Primary accent | crimson/rose `#e11d48` / `#f43f5e` (heart-rate motif) |
-| Generate button | rose |
-| Zone colors | Z1 `#3b82f6` · Z2 `#22c55e` · Z3 `#eab308` · Z4 `#f97316` · Z5 `#ef4444` |
+| Every 4–6 weeks in active training | Retest — fitness improves, zones shift upward |
+| After a race or hard effort with HR data | `race avg HR × 0.95` as a quick proxy |
+| Returning from injury or a break | Retest before resuming quality sessions |
+| Heat / illness / heavy fatigue | Skip — HR artificially elevated, results invalid |
 
-**Controls:**
-- **LTHR:** number stepper (− / value / +, bpm unit) — mirrors strength page stepper.
-- **Training status:** 3-segment pill toggle — `Recreational | Trained | Highly Trained`.
-- **Generate button:** rose.
-
-**Output (hero):**
-- A horizontal **stacked zone bar** — five segments sized/colored by zone, each labeled with its bpm range; the Z3 quality band visibly emphasized (glow/marker on the LTHR line).
-- Below the bar: a **zone detail list** — each row = zone color dot · name · bpm range · NS role badge.
-- A **derived values panel** — Estimated HRmax, Easy ceiling, Quality target, Quality cap (each as a labeled stat).
-- **Copy as text** button (reuse `copyPlan()` clipboard + `execCommand` fallback from `index.html` lines 788–811).
-
-**Guidance (collapsible `<details>` sections below output):**
-
-1. **How to perform the LTHR test**
-   - Flat route (track/flat road/treadmill); **chest strap** (wrist unreliable at intensity); fresh legs.
-   - Warm up 10–15 min easy → run **as hard as sustainable for 30 min** → lap at 10 min → **average HR of the last 20 min = LTHR**.
-   - No-TT proxy: recent **10k race avg ≈ LTHR**; **HM race avg ≈ LTHR −2–3 bpm**.
-
-2. **When to retest**
-   | Situation | Action |
-   |---|---|
-   | Every 4–6 weeks in active training | Retest — fitness shifts zones |
-   | After a race with HR data | Use race avg as updated proxy |
-   | Returning from injury/break | Retest before resuming quality |
-   | Heat / illness / heavy fatigue | Skip — results inflated |
-
-   (Aligns with the existing NS guidance: race/TT every 4–8 weeks to update zones.)
+Aligns with NS guidance: race or 5k TT every 4–8 weeks to update training zones.
 
 ---
 
-## Reused patterns
-- Clipboard copy with `execCommand` fallback — `copyPlan()` (`index.html` 788–811).
-- `showError()` validation pattern (`index.html` 509–514) — for out-of-range LTHR.
-- Nav bar markup/styles — extend the existing pattern already in `index.html` and `strength.html`.
-- Stepper + pill-toggle controls — reuse from `strength.html`.
-
----
-
-## Nav bar (updated on all three pages)
-Three links: **Run Plan** (`index.html`) · **Strength Plan** (`strength.html`) · **HR Zones** (`hr-zones.html`), active page highlighted, styled per-page to match each palette.
+## Reused patterns (no changes needed)
+- Clipboard copy + `execCommand` fallback → `copyZones()`
+- `showError()` validation
+- Stepper UI pattern
+- Nav bar markup
 
 ---
 
 ## Verification
 
-1. Open `hr-zones.html`:
-   - Light/rose clinical theme renders; distinct from both other pages.
-   - Enter LTHR (e.g. 165), status = Trained → zone bar renders 5 colored segments with correct bpm ranges (Z1 <140, Z2 140–146, Z3 148–155, Z4 156–163, Z5 ≥165), Z3 highlighted as quality target.
-   - Derived panel shows est. HRmax ≈ 188, easy ceiling ≈ 131, quality target ≈ 149–157, cap = 165.
-   - Change training status → est. HRmax + easy ceiling update (zones unchanged — they depend only on LTHR).
-   - Out-of-range LTHR (e.g. 90 or 230) → friendly error, no output.
-   - Expand both collapsible guidance sections.
-   - Copy as text → clipboard contains a readable zone breakdown.
-2. Cross-check zone math by hand against the Friel %-of-LTHR table.
-3. Confirm nav bar appears on all three pages and links correctly; existing run + strength generators still work unchanged.
+Enter FTHR = 176 (from Ryan's example: 185 bpm avg × 0.95):
+- Z1: < 120 bpm ✓
+- Z2: 121–146 bpm ✓
+- Z3: 148–165 bpm ✓
+- Z4: 167–185 bpm ✓
+- Z5: > 187 bpm ✓
+- Easy ceiling: ~141 bpm (80% × 176) ✓
+- Quality target: 148–165 bpm (Z3) ✓
+- Quality hard cap: 176 bpm (FTHR) ✓
+
+Out-of-range FTHR (e.g. 90 or 220) → friendly error, no output.
+Expand both guidance sections → content renders correctly.
+Copy as text → readable zone breakdown with FTHR and all zones.
+Nav works on all 3 pages; run + strength generators unchanged.
 
 ## Out of scope
-- No HRmax-only or Karvonen/HRR method (LTHR is the single chosen method).
-- No race-result auto-estimate input (proxy is documented in guidance text only).
-- No persistence/localStorage.
+- No HRmax-only or Karvonen/HRR method.
+- No race-result auto-estimate input (proxy documented in guidance only).
+- No persistence / localStorage.
 - No MAS / pace / power zone conversions.
+- No 7-zone Friel model.

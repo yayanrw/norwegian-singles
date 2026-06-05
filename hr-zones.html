@@ -1,0 +1,639 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HR Zones — Norwegian Singles</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #fafafa;
+      color: #374151;
+      min-height: 100vh;
+      padding: 0 0 64px;
+    }
+
+    /* ── Nav ── */
+    .site-nav {
+      display: flex; justify-content: center;
+      gap: 6px; padding: 14px 16px;
+      border-bottom: 1px solid #fce7ec;
+      background: #fff;
+    }
+    .nav-link {
+      font-size: 12px; font-weight: 700; letter-spacing: 0.8px;
+      text-transform: uppercase; text-decoration: none;
+      padding: 7px 16px; border-radius: 20px;
+      color: #9ca3af; transition: all 0.15s;
+    }
+    .nav-link:hover { color: #6b7280; background: #fdf2f4; }
+    .nav-link.active { background: #e11d48; color: #fff; }
+
+    .container { max-width: 700px; margin: 0 auto; padding: 28px 16px 0; }
+
+    /* ── Header ── */
+    header { text-align: center; margin-bottom: 32px; }
+    header h1 { font-size: 26px; font-weight: 800; color: #111827; letter-spacing: -0.5px; }
+    header p  { font-size: 14px; color: #9ca3af; margin-top: 5px; }
+    .badge {
+      display: inline-block; margin-top: 10px;
+      font-size: 11px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase;
+      background: #e11d48; color: #fff; padding: 4px 10px; border-radius: 20px;
+    }
+
+    /* ── Cards ── */
+    .card {
+      background: #fff;
+      border-radius: 14px;
+      padding: 24px;
+      margin-bottom: 12px;
+      border: 1px solid #f3e0e4;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+    }
+    .card h2 {
+      font-size: 11px; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 1px;
+      color: #d1a0a8; margin-bottom: 18px;
+    }
+
+    /* ── Form group ── */
+    .form-group { display: flex; flex-direction: column; gap: 8px; }
+    .form-group label { font-size: 13px; font-weight: 600; color: #6b7280; }
+    .form-hint { font-size: 11px; color: #b0b9c8; margin-top: 4px; }
+
+    /* ── Stepper ── */
+    .stepper {
+      display: flex; align-items: center;
+      background: #f9fafb; border: 1.5px solid #e5e7eb;
+      border-radius: 10px; overflow: hidden;
+      transition: border-color 0.15s;
+    }
+    .stepper:focus-within { border-color: #e11d48; }
+    .stepper-btn {
+      width: 48px; height: 52px;
+      background: transparent; border: none;
+      color: #9ca3af; font-size: 22px; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      transition: background 0.1s, color 0.1s;
+    }
+    .stepper-btn:hover { background: #fce7ec; color: #e11d48; }
+    .stepper-inner {
+      flex: 1; display: flex; align-items: center; justify-content: center; gap: 6px;
+    }
+    .stepper-val {
+      font-size: 28px; font-weight: 800; color: #111827;
+      min-width: 56px; text-align: center;
+    }
+    .stepper-unit { font-size: 12px; font-weight: 600; color: #9ca3af; }
+
+    /* ── Button ── */
+    .generate-btn {
+      width: 100%; padding: 16px;
+      background: linear-gradient(135deg, #e11d48, #9f1239);
+      color: #fff; border: none; border-radius: 12px;
+      font-size: 16px; font-weight: 800;
+      cursor: pointer; transition: opacity 0.15s, transform 0.1s;
+      margin-bottom: 24px; letter-spacing: 0.3px;
+    }
+    .generate-btn:hover  { opacity: 0.9; }
+    .generate-btn:active { transform: scale(0.99); }
+
+    /* ── Error ── */
+    .error-msg {
+      background: #fef2f4; border: 1px solid #fca5a5;
+      border-radius: 9px; padding: 12px 16px;
+      color: #dc2626; font-size: 13px;
+      margin-bottom: 14px;
+    }
+
+    /* ── Output wrapper ── */
+    .output-card {
+      background: #fff;
+      border-radius: 14px;
+      padding: 28px 24px;
+      border: 1px solid #f3e0e4;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+    }
+
+    .out-header { text-align: center; margin-bottom: 28px; }
+    .out-eyebrow {
+      font-size: 11px; font-weight: 700; letter-spacing: 2px;
+      text-transform: uppercase; color: #d1a0a8; margin-bottom: 6px;
+    }
+    .out-title { font-size: 20px; font-weight: 800; color: #111827; letter-spacing: -0.3px; }
+    .out-subtitle { font-size: 13px; color: #9ca3af; margin-top: 4px; }
+
+    /* ── Zone bar ── */
+    .zone-bar-wrap { margin-bottom: 8px; position: relative; }
+
+    .quality-label {
+      position: absolute; top: -22px;
+      font-size: 10px; font-weight: 700; letter-spacing: 0.5px;
+      color: #e11d48; text-transform: uppercase;
+      display: flex; align-items: center; gap: 4px;
+    }
+    .quality-label::before { content: '★'; }
+
+    .zone-bar {
+      display: flex; border-radius: 12px; overflow: hidden;
+      height: 72px; width: 100%;
+    }
+    .zone-seg {
+      display: flex; flex-direction: column;
+      justify-content: center; align-items: center;
+      padding: 6px 4px; cursor: default;
+      transition: filter 0.15s;
+      position: relative; overflow: hidden;
+    }
+    .zone-seg:hover { filter: brightness(1.1); }
+    .zone-seg.quality-zone {
+      box-shadow: inset 0 0 0 2px rgba(255,255,255,0.5);
+    }
+    .zone-seg.quality-zone::after {
+      content: ''; position: absolute; top: 0; left: 0; right: 0;
+      height: 3px; background: rgba(255,255,255,0.7);
+    }
+    .seg-z { font-size: 10px; font-weight: 800; color: rgba(255,255,255,0.7); letter-spacing: 0.5px; }
+    .seg-range { font-size: 11px; font-weight: 700; color: #fff; margin-top: 3px; text-align: center; line-height: 1.3; }
+    .seg-label { font-size: 9px; color: rgba(255,255,255,0.65); margin-top: 2px; text-align: center; }
+
+    /* ── Zone detail list ── */
+    .zone-list { display: flex; flex-direction: column; gap: 8px; margin: 20px 0; }
+    .zone-row {
+      display: grid; grid-template-columns: 10px 120px 1fr auto;
+      gap: 12px; align-items: center;
+      padding: 10px 14px;
+      border-radius: 9px; background: #f9fafb;
+      border: 1px solid #f3f4f6;
+    }
+    .zone-row.quality-zone-row {
+      background: #fdf2f4; border-color: #fca5a5;
+    }
+    .zone-dot {
+      width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0;
+    }
+    .zone-name { font-size: 13px; font-weight: 700; color: #111827; }
+    .zone-bpm  { font-size: 12px; color: #6b7280; margin-top: 1px; }
+    .zone-ns-note { font-size: 12px; color: #6b7280; }
+    .zone-row.quality-zone-row .zone-ns-note { color: #be123c; }
+    .ns-badge {
+      font-size: 10px; font-weight: 700; padding: 3px 8px;
+      border-radius: 5px; white-space: nowrap; letter-spacing: 0.3px;
+      text-align: right;
+    }
+    .badge-easy    { background: rgba(34,197,94,0.12);  color: #16a34a; }
+    .badge-quality { background: rgba(225,29,72,0.10);  color: #e11d48; }
+    .badge-cap     { background: rgba(249,115,22,0.12); color: #ea580c; }
+    .badge-off     { background: rgba(156,163,175,0.12);color: #6b7280; }
+
+    /* ── Z4 warning ── */
+    .z4-note {
+      margin: -4px 0 12px;
+      padding: 9px 14px;
+      background: rgba(249,115,22,0.07);
+      border: 1px solid rgba(249,115,22,0.25);
+      border-radius: 8px;
+      font-size: 12px; color: #9a3412; line-height: 1.5;
+    }
+    .z4-note strong { color: #c2410c; }
+
+    /* ── Derived values ── */
+    .derived-grid {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 10px; margin-top: 20px; padding-top: 20px;
+      border-top: 1px solid #f3e0e4;
+    }
+    .derived-stat {
+      background: #f9fafb; border: 1px solid #f3f4f6;
+      border-radius: 10px; padding: 14px;
+    }
+    .derived-stat.highlight { background: #fdf2f4; border-color: #fca5a5; }
+    .derived-label {
+      font-size: 10px; font-weight: 700; letter-spacing: 1px;
+      text-transform: uppercase; color: #9ca3af; margin-bottom: 4px;
+    }
+    .derived-stat.highlight .derived-label { color: #d1a0a8; }
+    .derived-val {
+      font-size: 22px; font-weight: 800; color: #111827;
+    }
+    .derived-stat.highlight .derived-val { color: #e11d48; }
+    .derived-sub { font-size: 11px; color: #9ca3af; margin-top: 2px; }
+
+    /* ── Copy btn ── */
+    .copy-btn {
+      width: 100%; margin-top: 10px; padding: 12px;
+      background: transparent; color: #9ca3af;
+      border: 1.5px solid #e5e7eb; border-radius: 10px;
+      font-size: 13px; font-weight: 600; cursor: pointer;
+      transition: all 0.15s; letter-spacing: 0.3px;
+    }
+    .copy-btn:hover  { background: #fdf2f4; color: #be123c; border-color: #fca5a5; }
+    .copy-btn.copied { background: rgba(22,163,74,0.08); color: #16a34a; border-color: rgba(22,163,74,0.3); }
+
+    /* ── Guidance (collapsible) ── */
+    .guidance-section { margin-top: 10px; }
+    details {
+      background: #fff; border: 1px solid #f3e0e4;
+      border-radius: 12px; overflow: hidden;
+      margin-bottom: 8px;
+    }
+    summary {
+      padding: 16px 20px; font-size: 13px; font-weight: 700;
+      color: #374151; cursor: pointer; list-style: none;
+      display: flex; align-items: center; justify-content: space-between;
+      user-select: none;
+    }
+    summary::-webkit-details-marker { display: none; }
+    summary::after {
+      content: '›'; font-size: 16px; color: #d1a0a8;
+      transition: transform 0.2s;
+    }
+    details[open] summary::after { transform: rotate(90deg); }
+    .details-body { padding: 0 20px 20px; }
+
+    .step-list { display: flex; flex-direction: column; gap: 10px; }
+    .step { display: flex; gap: 12px; align-items: flex-start; }
+    .step-num {
+      width: 22px; height: 22px; border-radius: 50%;
+      background: #e11d48; color: #fff;
+      font-size: 11px; font-weight: 800;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0; margin-top: 1px;
+    }
+    .step-text { font-size: 13px; color: #374151; line-height: 1.5; }
+    .step-text strong { color: #111827; }
+
+    .tip-box {
+      margin-top: 12px; padding: 10px 14px;
+      background: #fdf2f4; border: 1px solid #fca5a5;
+      border-radius: 8px; font-size: 12px; color: #9f1239; line-height: 1.5;
+    }
+    .tip-box strong { color: #be123c; }
+
+    .retest-table { width: 100%; border-collapse: collapse; margin-top: 4px; }
+    .retest-table th {
+      text-align: left; font-size: 10px; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 0.5px;
+      color: #d1a0a8; padding: 0 0 8px; border-bottom: 1px solid #f3e0e4;
+    }
+    .retest-table td {
+      font-size: 12px; color: #374151; padding: 8px 0;
+      border-bottom: 1px solid #f9fafb; vertical-align: top;
+    }
+    .retest-table td:first-child { padding-right: 16px; color: #111827; font-weight: 600; width: 55%; }
+    .retest-table tr:last-child td { border-bottom: none; }
+
+    .hidden { display: none; }
+
+    @media (max-width: 480px) {
+      .zone-bar { height: 60px; }
+      .seg-range { font-size: 9px; }
+      .derived-grid { grid-template-columns: 1fr 1fr; }
+      .zone-row { grid-template-columns: 10px 90px 1fr auto; gap: 8px; }
+      .zone-ns-note { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+<nav class="site-nav">
+  <a href="index.html" class="nav-link">Run Plan</a>
+  <a href="strength.html" class="nav-link">Strength Plan</a>
+  <a href="hr-zones.html" class="nav-link active">HR Zones</a>
+</nav>
+
+<div class="container">
+
+  <header>
+    <h1>HR Zones</h1>
+    <p>5-zone map from your functional threshold heart rate</p>
+    <span class="badge">FTHR Method</span>
+  </header>
+
+  <!-- ── Input ── -->
+  <div class="card">
+    <h2>Your FTHR</h2>
+    <div class="form-group">
+      <label>FTHR (from 20-min TT)</label>
+      <div class="stepper" id="fthrStepper">
+        <button class="stepper-btn" onclick="changeFthr(-1)">−</button>
+        <div class="stepper-inner">
+          <span class="stepper-val" id="fthrVal">165</span>
+          <span class="stepper-unit">bpm</span>
+        </div>
+        <button class="stepper-btn" onclick="changeFthr(1)">+</button>
+      </div>
+      <p class="form-hint">Run a 20-min TT → record average HR → multiply by 0.95 → enter the result here.</p>
+    </div>
+  </div>
+
+  <div id="errorMsg" class="error-msg hidden"></div>
+
+  <button class="generate-btn" onclick="calculate()">Calculate HR Zones →</button>
+
+  <!-- ── Output ── -->
+  <div id="output" class="hidden">
+    <div class="output-card" id="outputCard"></div>
+    <button class="copy-btn" id="copyBtn" onclick="copyZones()">Copy Zones as Text</button>
+  </div>
+
+  <!-- ── Guidance ── -->
+  <div class="guidance-section">
+    <details>
+      <summary>How to perform the FTHR test</summary>
+      <div class="details-body">
+        <div class="step-list">
+          <div class="step">
+            <div class="step-num">1</div>
+            <div class="step-text"><strong>Choose your route.</strong> Flat track, flat road, or treadmill. Hills and traffic introduce pacing variability that skews the result.</div>
+          </div>
+          <div class="step">
+            <div class="step-num">2</div>
+            <div class="step-text"><strong>Use an external chest strap (HRM).</strong> Wrist-based HR sensors are unreliable at high intensities. A chest strap gives significantly more accurate data for this test.</div>
+          </div>
+          <div class="step">
+            <div class="step-num">3</div>
+            <div class="step-text"><strong>Warm up 10+ minutes</strong> — easy run + dynamic stretching or running drills. Rest 2–3 min before starting the test effort.</div>
+          </div>
+          <div class="step">
+            <div class="step-num">4</div>
+            <div class="step-text"><strong>Run as hard as you can sustain for 20 minutes.</strong> Start conservatively for the first 5 min, then decide every 5 min if you can maintain or push slightly harder. Most people go too hard early and fade — a fading effort gives inaccurate data.</div>
+          </div>
+          <div class="step">
+            <div class="step-num">5</div>
+            <div class="step-text"><strong>Record the average HR for the full 20 minutes</strong> from your watch or HRM.</div>
+          </div>
+          <div class="step">
+            <div class="step-num">6</div>
+            <div class="step-text"><strong>Calculate: FTHR = avg HR × 0.95.</strong> Enter this value in the stepper above.</div>
+          </div>
+        </div>
+        <div class="tip-box">
+          <strong>Example:</strong> avg HR 185 bpm → FTHR = 185 × 0.95 = <strong>176 bpm</strong>.<br>
+          <strong>No TT available?</strong> Recent 10k race avg HR × 0.95 gives a rough proxy.
+        </div>
+      </div>
+    </details>
+
+    <details>
+      <summary>When to retest</summary>
+      <div class="details-body">
+        <table class="retest-table">
+          <tr><th>Situation</th><th>Action</th></tr>
+          <tr>
+            <td>Every 4–6 weeks during active training</td>
+            <td>Retest — fitness improves, FTHR rises, zones shift upward</td>
+          </tr>
+          <tr>
+            <td>After a race with HR data</td>
+            <td>race avg HR × 0.95 as a quick updated proxy</td>
+          </tr>
+          <tr>
+            <td>Returning from injury or a break</td>
+            <td>Retest before resuming quality sessions — FTHR will have dropped</td>
+          </tr>
+          <tr>
+            <td>Heat, illness, or heavy fatigue</td>
+            <td>Skip — HR is artificially elevated, results will be inaccurate</td>
+          </tr>
+        </table>
+        <div class="tip-box" style="margin-top:12px">
+          This aligns with the Norwegian Singles principle: race or 5k time trial every <strong>4–8 weeks</strong> to update training zones.
+        </div>
+      </div>
+    </details>
+  </div>
+
+</div>
+
+<script>
+  /* ─────────────────────────────────────────
+     STATE
+  ───────────────────────────────────────── */
+  let fthr       = 165;
+  let lastResult = null;
+
+  /* ─────────────────────────────────────────
+     ZONE DEFINITIONS (% of FTHR)
+     Source: FTHR 5-zone model
+  ───────────────────────────────────────── */
+  const ZONE_CFG = [
+    { z:'Z1', name:'Recovery',
+      lo:0.00, hi:0.68, color:'#3b82f6',
+      nsRole:'Easy / Recovery', nsBadge:'badge-easy',
+      nsNote:'Comfortable recovery — warm-ups, cooldowns, rest days' },
+
+    { z:'Z2', name:'Endurance',
+      lo:0.69, hi:0.83, color:'#22c55e',
+      nsRole:'Easy / Aerobic', nsBadge:'badge-easy',
+      nsNote:'Target for all easy and long runs — stay in low-to-mid Z2' },
+
+    { z:'Z3', name:'Steady State',
+      lo:0.84, hi:0.94, color:'#eab308',
+      nsRole:'Quality Target ★', nsBadge:'badge-quality',
+      nsNote:'Sub-threshold sweet spot — the heart of Norwegian Singles',
+      quality: true },
+
+    { z:'Z4', name:'Lactate Threshold',
+      lo:0.95, hi:1.05, color:'#f97316',
+      nsRole:'Quality Ceiling', nsBadge:'badge-cap',
+      nsNote:'Low Z4 (95–99% FTHR) OK — above FTHR is VO2max territory, avoid in NS',
+      quality: true },
+
+    { z:'Z5', name:'VO2 Max',
+      lo:1.06, hi:null, color:'#ef4444',
+      nsRole:'Off-Limits', nsBadge:'badge-off',
+      nsNote:'Avoided entirely in Norwegian Singles training' },
+  ];
+
+  /* Proportional flex widths for zone bar */
+  const SEG_FLEX = { Z1: 3.5, Z2: 1.5, Z3: 1.5, Z4: 1.5, Z5: 1 };
+
+  /* ─────────────────────────────────────────
+     CALCULATE
+  ───────────────────────────────────────── */
+  function calculate() {
+    document.getElementById('errorMsg').classList.add('hidden');
+    document.getElementById('output').classList.add('hidden');
+
+    if (fthr < 100 || fthr > 200) {
+      showError('FTHR must be between 100 and 200 bpm. Check your calculation (avg HR × 0.95).');
+      return;
+    }
+
+    /* bpm boundaries per zone */
+    const zones = ZONE_CFG.map(z => {
+      let range;
+      if (z.z === 'Z1') {
+        range = `< ${Math.round(fthr * z.hi)} bpm`;
+      } else if (!z.hi) {
+        range = `≥ ${Math.round(fthr * z.lo)} bpm`;
+      } else {
+        const lo = Math.round(fthr * z.lo);
+        const hi = Math.round(fthr * z.hi);
+        range = `${lo}–${hi} bpm`;
+      }
+      return { ...z, range };
+    });
+
+    /* derived NS reference values */
+    const easyCeil  = Math.round(fthr * 0.80);   /* ≈ 70% HRmax for most runners */
+    const qualLo    = Math.round(fthr * 0.84);   /* Z3 lower boundary */
+    const qualHi    = Math.round(fthr * 0.94);   /* Z3 upper boundary */
+
+    lastResult = { fthr, zones, easyCeil, qualLo, qualHi };
+    renderOutput(lastResult);
+  }
+
+  /* ─────────────────────────────────────────
+     RENDER
+  ───────────────────────────────────────── */
+  function renderOutput({ fthr, zones, easyCeil, qualLo, qualHi }) {
+    /* zone bar */
+    const totalFlex = Object.values(SEG_FLEX).reduce((a, b) => a + b, 0);
+    const z3Start   = (SEG_FLEX.Z1 + SEG_FLEX.Z2) / totalFlex * 100;
+
+    const barHTML = zones.map(z => {
+      const flex      = SEG_FLEX[z.z];
+      const qualClass = z.quality ? 'quality-zone' : '';
+      const rangeShort = z.range.replace(' bpm', '');
+      return `<div class="zone-seg ${qualClass}"
+                   style="background:${z.color};flex:${flex}"
+                   title="${z.z} ${z.name}: ${z.range}">
+                <span class="seg-z">${z.z}</span>
+                <span class="seg-range">${rangeShort}</span>
+                <span class="seg-label">${z.name}</span>
+              </div>`;
+    }).join('');
+
+    /* zone list */
+    const listHTML = zones.map(z => `
+      <div class="zone-row ${z.quality ? 'quality-zone-row' : ''}">
+        <div class="zone-dot" style="background:${z.color}"></div>
+        <div>
+          <div class="zone-name">${z.z} · ${z.name}</div>
+          <div class="zone-bpm">${z.range}</div>
+        </div>
+        <div class="zone-ns-note">${z.nsNote}</div>
+        <span class="ns-badge ${z.nsBadge}">${z.nsRole}</span>
+      </div>
+    `).join('');
+
+    document.getElementById('outputCard').innerHTML = `
+      <div class="out-header">
+        <div class="out-eyebrow">FTHR 5-Zone Method</div>
+        <div class="out-title">Your HR Zones</div>
+        <div class="out-subtitle">FTHR ${fthr} bpm</div>
+      </div>
+
+      <div class="zone-bar-wrap" style="padding-top:28px">
+        <div class="quality-label" style="left:${z3Start.toFixed(0)}%">Quality Zone</div>
+        <div class="zone-bar">${barHTML}</div>
+      </div>
+
+      <div class="zone-list">
+        ${listHTML}
+      </div>
+
+      <div class="z4-note">
+        ⚠ <strong>Z4 straddles your threshold.</strong>
+        Low Z4 (95–99% FTHR, below ${fthr} bpm) is the Norwegian Singles ceiling — acceptable if needed.
+        High Z4 (100–105% FTHR, above ${fthr} bpm) is already past threshold and should be avoided in NS training.
+      </div>
+
+      <div class="derived-grid">
+        <div class="derived-stat">
+          <div class="derived-label">Your FTHR</div>
+          <div class="derived-val">${fthr} <span style="font-size:14px;font-weight:600;color:#9ca3af">bpm</span></div>
+          <div class="derived-sub">Lactate threshold anchor — NS hard cap</div>
+        </div>
+        <div class="derived-stat">
+          <div class="derived-label">Easy Run Ceiling</div>
+          <div class="derived-val">${easyCeil} <span style="font-size:14px;font-weight:600;color:#9ca3af">bpm</span></div>
+          <div class="derived-sub">~80% FTHR (≈ 70% HRmax) — stay below on all easy days</div>
+        </div>
+        <div class="derived-stat highlight">
+          <div class="derived-label">Quality Target</div>
+          <div class="derived-val">${qualLo}–${qualHi} <span style="font-size:14px;font-weight:600;color:#f43f5e">bpm</span></div>
+          <div class="derived-sub">Z3 Steady State (84–94% FTHR) — NS sweet spot</div>
+        </div>
+        <div class="derived-stat highlight">
+          <div class="derived-label">Quality Hard Cap</div>
+          <div class="derived-val">${fthr} <span style="font-size:14px;font-weight:600;color:#f43f5e">bpm</span></div>
+          <div class="derived-sub">Your FTHR — never consistently exceed at end of final rep</div>
+        </div>
+      </div>
+    `;
+
+    document.getElementById('output').classList.remove('hidden');
+    document.getElementById('output').scrollIntoView({ behavior: 'smooth' });
+  }
+
+  /* ─────────────────────────────────────────
+     COPY AS TEXT
+  ───────────────────────────────────────── */
+  function buildZoneText({ fthr, zones, easyCeil, qualLo, qualHi }) {
+    const lines = [
+      `❤️ HR Zones — FTHR ${fthr} bpm`,
+      `FTHR 5-Zone Method (% of FTHR)`,
+      '',
+    ];
+    zones.forEach(z => {
+      const star = z.quality ? ' ★' : '';
+      lines.push(`${z.z} ${z.name}${star}  ${z.range}  |  ${z.nsRole}`);
+    });
+    lines.push('');
+    lines.push(`📊 Norwegian Singles Reference Values`);
+    lines.push(`FTHR: ${fthr} bpm — threshold anchor and NS hard cap`);
+    lines.push(`Easy run ceiling: ${easyCeil} bpm (~80% FTHR ≈ 70% HRmax)`);
+    lines.push(`Quality target: ${qualLo}–${qualHi} bpm (Z3 Steady State — NS sweet spot)`);
+    lines.push(`Quality hard cap: ${fthr} bpm — never consistently exceed at end of final rep`);
+    lines.push('');
+    lines.push(`⚠ Z4 (${Math.round(fthr * 0.95)}–${Math.round(fthr * 1.05)} bpm) straddles threshold.`);
+    lines.push(`  Low Z4 (< ${fthr} bpm) = acceptable ceiling. High Z4 (> ${fthr} bpm) = avoid in NS.`);
+    lines.push('');
+    lines.push(`› Retest every 4–6 weeks or after a race (race avg HR × 0.95)`);
+    lines.push(`› Norwegian Singles: quality at Z3 / low Z4 only — Z5 off-limits`);
+    return lines.join('\n');
+  }
+
+  async function copyZones() {
+    if (!lastResult) return;
+    const text = buildZoneText(lastResult);
+    const btn  = document.getElementById('copyBtn');
+    try {
+      await navigator.clipboard.writeText(text);
+    } catch {
+      const ta = Object.assign(document.createElement('textarea'),
+        { value: text, style: 'position:fixed;opacity:0' });
+      document.body.appendChild(ta); ta.select();
+      document.execCommand('copy');
+      document.body.removeChild(ta);
+    }
+    btn.textContent = '✓ Copied!';
+    btn.classList.add('copied');
+    setTimeout(() => {
+      btn.textContent = 'Copy Zones as Text';
+      btn.classList.remove('copied');
+    }, 2000);
+  }
+
+  /* ─────────────────────────────────────────
+     UI CONTROLS
+  ───────────────────────────────────────── */
+  function changeFthr(delta) {
+    fthr = Math.max(80, Math.min(220, fthr + delta));
+    document.getElementById('fthrVal').textContent = fthr;
+  }
+
+  function showError(msg) {
+    const el = document.getElementById('errorMsg');
+    el.textContent = msg;
+    el.classList.remove('hidden');
+    el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
+</script>
+</body>
+</html>
