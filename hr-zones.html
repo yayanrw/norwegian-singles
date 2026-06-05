@@ -250,10 +250,11 @@
 
     /* ── Derived values ── */
     .derived-grid {
-      display: grid; grid-template-columns: 1fr 1fr;
+      display: grid; grid-template-columns: 1fr 1fr 1fr;
       gap: 10px; margin-top: 20px; padding-top: 20px;
       border-top: 1px solid #2e1f27;
     }
+    @media (max-width: 560px) { .derived-grid { grid-template-columns: 1fr 1fr; } }
     .derived-stat {
       background: #1a1217; border: 1px solid #2e1f27;
       border-radius: 10px; padding: 14px;
@@ -438,16 +439,16 @@
   <div class="card">
     <h2>Your Data</h2>
     <div class="form-group" style="margin-bottom:18px">
-      <label>FTHR (from 20-min TT)</label>
-      <div class="stepper" id="fthrStepper">
-        <button class="stepper-btn" onclick="changeFthr(-1)">−</button>
+      <label>20-min TT Average HR</label>
+      <div class="stepper" id="avgHRStepper">
+        <button class="stepper-btn" onclick="changeAvgHR(-1)">−</button>
         <div class="stepper-inner">
-          <span class="stepper-val" id="fthrVal">165</span>
+          <span class="stepper-val" id="avgHRVal">185</span>
           <span class="stepper-unit">bpm</span>
         </div>
-        <button class="stepper-btn" onclick="changeFthr(1)">+</button>
+        <button class="stepper-btn" onclick="changeAvgHR(1)">+</button>
       </div>
-      <p class="form-hint">Run a 20-min TT → record average HR → multiply by 0.95 → enter the result here.</p>
+      <p class="form-hint">Run a 20-min TT all-out → read the average HR from your watch → enter it here. The app computes FTHR automatically.</p>
     </div>
     <div class="form-group">
       <label>
@@ -517,12 +518,12 @@
           </div>
           <div class="step">
             <div class="step-num">6</div>
-            <div class="step-text"><strong>Calculate: FTHR = avg HR × 0.95.</strong> Enter this value in the stepper above.</div>
+            <div class="step-text"><strong>Enter your average HR in the stepper above.</strong> The app automatically computes your FTHR (avg × 0.95) and generates your zones.</div>
           </div>
         </div>
         <div class="tip-box">
-          <strong>Example:</strong> avg HR 185 bpm → FTHR = 185 × 0.95 = <strong>176 bpm</strong>.<br>
-          <strong>No TT available?</strong> Recent 10k race avg HR × 0.95 gives a rough proxy.
+          <strong>Example:</strong> avg HR 185 bpm → app computes FTHR = <strong>176 bpm</strong>.<br>
+          <strong>No TT available?</strong> Use recent 10k race average HR as a rough proxy.
         </div>
       </div>
     </details>
@@ -562,7 +563,7 @@
   /* ─────────────────────────────────────────
      STATE
   ───────────────────────────────────────── */
-  let fthr       = 165;
+  let avgHR      = 185;
   let status     = 'trained';
   let lastResult = null;
 
@@ -612,10 +613,11 @@
     document.getElementById('errorMsg').classList.add('hidden');
     document.getElementById('output').classList.add('hidden');
 
-    if (fthr < 100 || fthr > 200) {
-      showError('FTHR must be between 100 and 200 bpm. Check your calculation (avg HR × 0.95).');
+    if (avgHR < 120 || avgHR > 230) {
+      showError('Average HR must be between 120 and 230 bpm. Check your watch data.');
       return;
     }
+    const fthr = Math.round(avgHR * 0.95);
 
     /* bpm boundaries per zone */
     const zones = ZONE_CFG.map(z => {
@@ -646,7 +648,7 @@
     const ssZ4lo = Math.round(fthr * 0.95);
     const ssZ4hi = fthr;
 
-    lastResult = { fthr, status, estHRmax, zones, easyCeil, qualLo, qualHi,
+    lastResult = { avgHR, fthr, status, estHRmax, zones, easyCeil, qualLo, qualHi,
                    ssLo, ssHi, ssZ3lo, ssZ3hi, ssZ4lo, ssZ4hi };
     renderOutput(lastResult);
   }
@@ -656,7 +658,7 @@
   ───────────────────────────────────────── */
   const STATUS_LABEL = { recreational:'Recreational', trained:'Trained', highly:'Elite / Highly Trained' };
 
-  function renderOutput({ fthr, status, estHRmax, zones, easyCeil, qualLo, qualHi,
+  function renderOutput({ avgHR, fthr, status, estHRmax, zones, easyCeil, qualLo, qualHi,
                           ssLo, ssHi, ssZ3lo, ssZ3hi, ssZ4lo, ssZ4hi }) {
     /* zone bar */
     const totalFlex  = Object.values(SEG_FLEX).reduce((a, b) => a + b, 0);
@@ -694,7 +696,7 @@
       <div class="out-header">
         <div class="out-eyebrow">FTHR 5-Zone Method</div>
         <div class="out-title">Your HR Zones</div>
-        <div class="out-subtitle">FTHR ${fthr} bpm · ${STATUS_LABEL[status]}</div>
+        <div class="out-subtitle">Avg HR ${avgHR} bpm → FTHR ${fthr} bpm · ${STATUS_LABEL[status]}</div>
       </div>
 
       <div class="zone-bar-wrap" style="padding-top:28px;padding-bottom:32px">
@@ -747,6 +749,11 @@
 
       <div class="derived-grid">
         <div class="derived-stat">
+          <div class="derived-label">Computed FTHR</div>
+          <div class="derived-val">${fthr} <span style="font-size:14px;font-weight:600;color:#5a3a44">bpm</span></div>
+          <div class="derived-sub">${avgHR} × 0.95 — your lactate threshold anchor</div>
+        </div>
+        <div class="derived-stat">
           <div class="derived-label">Est. Max HR</div>
           <div class="derived-val">${estHRmax} <span style="font-size:14px;font-weight:600;color:#5a3a44">bpm</span></div>
           <div class="derived-sub">FTHR ÷ ${(HRMAX_RATIO[status] * 100).toFixed(0)}% · estimate ±5–10 bpm</div>
@@ -776,9 +783,9 @@
   /* ─────────────────────────────────────────
      COPY AS TEXT
   ───────────────────────────────────────── */
-  function buildZoneText({ fthr, status, estHRmax, zones, easyCeil, qualLo, qualHi }) {
+  function buildZoneText({ avgHR, fthr, status, estHRmax, zones, easyCeil, qualLo, qualHi }) {
     const lines = [
-      `❤️ HR Zones — FTHR ${fthr} bpm · ${STATUS_LABEL[status]}`,
+      `❤️ HR Zones — Avg HR ${avgHR} bpm → FTHR ${fthr} bpm · ${STATUS_LABEL[status]}`,
       `FTHR 5-Zone Method (% of FTHR)`,
       '',
     ];
@@ -825,9 +832,9 @@
   /* ─────────────────────────────────────────
      UI CONTROLS
   ───────────────────────────────────────── */
-  function changeFthr(delta) {
-    fthr = Math.max(80, Math.min(220, fthr + delta));
-    document.getElementById('fthrVal').textContent = fthr;
+  function changeAvgHR(delta) {
+    avgHR = Math.max(100, Math.min(250, avgHR + delta));
+    document.getElementById('avgHRVal').textContent = avgHR;
   }
 
   function setStatus(s) {
