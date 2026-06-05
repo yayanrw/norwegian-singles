@@ -1,0 +1,797 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Strength Plan — Norwegian Singles</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #0e0e0d;
+      color: #d4cfc9;
+      min-height: 100vh;
+      padding: 0 0 64px;
+    }
+
+    /* ── Nav ── */
+    .site-nav {
+      display: flex; justify-content: center;
+      gap: 6px; padding: 14px 16px;
+      border-bottom: 1px solid #1f1e1c;
+      background: #0a0a09;
+    }
+    .nav-link {
+      font-size: 12px; font-weight: 700; letter-spacing: 0.8px;
+      text-transform: uppercase; text-decoration: none;
+      padding: 7px 16px; border-radius: 20px;
+      color: #6b6560; transition: all 0.15s;
+    }
+    .nav-link:hover { color: #a39890; background: #1a1a18; }
+    .nav-link.active { background: #d97706; color: #0e0e0d; }
+
+    .container { max-width: 700px; margin: 0 auto; padding: 28px 16px 0; }
+
+    /* ── Header ── */
+    header { text-align: center; margin-bottom: 32px; }
+    header h1 { font-size: 26px; font-weight: 800; color: #f5f0ea; letter-spacing: -0.5px; }
+    header p  { font-size: 14px; color: #6b6560; margin-top: 5px; }
+    .badge {
+      display: inline-block; margin-top: 10px;
+      font-size: 11px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase;
+      background: #d97706; color: #0e0e0d; padding: 4px 10px; border-radius: 20px;
+    }
+
+    /* ── Cards ── */
+    .card {
+      background: #1a1a18;
+      border-radius: 14px;
+      padding: 24px;
+      margin-bottom: 12px;
+      border: 1px solid #252420;
+    }
+    .card h2 {
+      font-size: 11px; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 1px;
+      color: #6b6560; margin-bottom: 18px;
+    }
+
+    /* ── Block selector ── */
+    .block-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+    .block-card {
+      padding: 16px;
+      border-radius: 10px;
+      border: 2px solid #2a2926;
+      background: #141412;
+      cursor: pointer;
+      transition: all 0.15s;
+      text-align: left;
+    }
+    .block-card:hover { border-color: #3a3834; background: #1a1a18; }
+    .block-card.selected { background: var(--block-bg); border-color: var(--block-color); box-shadow: 0 0 0 1px var(--block-color); }
+    .block-name {
+      font-size: 15px; font-weight: 800; color: #f5f0ea;
+      margin-bottom: 3px;
+    }
+    .block-card.selected .block-name { color: var(--block-color); }
+    .block-goal {
+      font-size: 11px; color: #6b6560; line-height: 1.4;
+    }
+    .block-card.selected .block-goal { color: var(--block-text); }
+    .block-dot {
+      width: 8px; height: 8px; border-radius: 50%;
+      background: var(--block-color);
+      display: inline-block; margin-right: 6px;
+      opacity: 0.4;
+    }
+    .block-card.selected .block-dot { opacity: 1; }
+
+    /* ── Pill toggle (sessions/week) ── */
+    .pill-toggle {
+      display: flex; background: #111110;
+      border-radius: 10px; padding: 4px; gap: 3px;
+      border: 1px solid #252420;
+    }
+    .pill-btn {
+      flex: 1; padding: 9px 0;
+      text-align: center; font-size: 14px; font-weight: 700;
+      border-radius: 7px; border: none; background: transparent;
+      color: #6b6560; cursor: pointer; transition: all 0.15s;
+    }
+    .pill-btn.active { background: #d97706; color: #0e0e0d; }
+    .pill-btn:hover:not(.active) { background: #1f1e1c; color: #a39890; }
+
+    /* ── Week stepper ── */
+    .stepper {
+      display: flex; align-items: center;
+      background: #111110; border: 1px solid #252420;
+      border-radius: 10px; overflow: hidden;
+    }
+    .stepper-btn {
+      width: 44px; height: 44px;
+      background: transparent; border: none;
+      color: #a39890; font-size: 20px; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      transition: background 0.1s;
+    }
+    .stepper-btn:hover { background: #1f1e1c; }
+    .stepper-val {
+      flex: 1; text-align: center;
+      font-size: 20px; font-weight: 800; color: #f5f0ea;
+    }
+
+    /* ── Equipment chips ── */
+    .chips { display: flex; flex-wrap: wrap; gap: 8px; }
+    .chip {
+      padding: 8px 14px; border-radius: 20px;
+      border: 1.5px solid #2a2926; background: #111110;
+      font-size: 13px; font-weight: 600; color: #6b6560;
+      cursor: pointer; transition: all 0.15s; user-select: none;
+    }
+    .chip:hover { border-color: #3a3834; color: #a39890; }
+    .chip.selected { border-color: #d97706; background: rgba(217,119,6,0.12); color: #f59e0b; }
+    .chip.locked { opacity: 0.5; cursor: default; }
+
+    /* ── Form row ── */
+    .form-row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 14px; }
+    .form-group { display: flex; flex-direction: column; gap: 8px; }
+    .form-group label { font-size: 13px; font-weight: 600; color: #8a8480; }
+
+    /* ── Button ── */
+    .generate-btn {
+      width: 100%; padding: 16px;
+      background: linear-gradient(135deg, #d97706, #b45309);
+      color: #0e0e0d; border: none; border-radius: 12px;
+      font-size: 16px; font-weight: 800;
+      cursor: pointer; transition: opacity 0.15s, transform 0.1s;
+      margin-bottom: 24px; letter-spacing: 0.3px;
+    }
+    .generate-btn:hover  { opacity: 0.9; }
+    .generate-btn:active { transform: scale(0.99); }
+
+    /* ── Error ── */
+    .error-msg {
+      background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.3);
+      border-radius: 9px; padding: 12px 16px;
+      color: #f87171; font-size: 13px;
+      margin-bottom: 14px;
+    }
+
+    /* ── Output ── */
+    .output-card {
+      background: #161614;
+      border-radius: 14px;
+      padding: 28px 24px;
+      border: 1px solid #252420;
+    }
+
+    .out-header { text-align: center; margin-bottom: 24px; padding-bottom: 20px; border-bottom: 1px solid #252420; }
+    .out-eyebrow {
+      font-size: 11px; font-weight: 700; letter-spacing: 2px;
+      text-transform: uppercase; margin-bottom: 6px;
+    }
+    .out-title {
+      font-size: 20px; font-weight: 800; color: #f5f0ea; letter-spacing: -0.3px;
+    }
+    .out-subtitle { font-size: 13px; color: #6b6560; margin-top: 4px; }
+
+    .out-pills { display: flex; justify-content: center; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
+    .pill-info {
+      font-size: 11px; font-weight: 700; padding: 4px 10px;
+      border-radius: 20px; letter-spacing: 0.3px;
+    }
+
+    /* ── Sessions ── */
+    .sessions { display: flex; flex-direction: column; gap: 16px; margin-top: 4px; }
+
+    .session-block { }
+    .session-title {
+      font-size: 10px; font-weight: 700; letter-spacing: 1.5px;
+      text-transform: uppercase; color: #4a4744;
+      margin-bottom: 8px; padding-left: 4px;
+    }
+
+    /* ── Exercise rows ── */
+    .exercise-row {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 10px; align-items: center;
+      padding: 12px 14px;
+      background: #1a1a18;
+      border-radius: 9px;
+      border: 1px solid #252420;
+      margin-bottom: 6px;
+    }
+    .ex-left {}
+    .ex-name {
+      font-size: 14px; font-weight: 700; color: #f5f0ea;
+      margin-bottom: 2px;
+    }
+    .ex-spec {
+      font-size: 12px; color: #6b6560;
+    }
+    .ex-cue {
+      font-size: 11px; color: #4a4744; margin-top: 2px; font-style: italic;
+    }
+    .ex-right { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; }
+    .rpe-badge {
+      font-size: 10px; font-weight: 800; padding: 3px 8px;
+      border-radius: 5px; white-space: nowrap; letter-spacing: 0.3px;
+    }
+    .rpe-green  { background: rgba(34,197,94,0.15);  color: #4ade80; }
+    .rpe-amber  { background: rgba(245,158,11,0.15); color: #fbbf24; }
+    .rpe-red    { background: rgba(239,68,68,0.15);  color: #f87171; }
+    .rpe-time   { background: rgba(148,163,184,0.1); color: #94a3b8; }
+
+    /* ── Progression note ── */
+    .progression-note {
+      margin-top: 16px; padding: 12px 14px;
+      background: rgba(217,119,6,0.08);
+      border: 1px solid rgba(217,119,6,0.2);
+      border-radius: 9px;
+    }
+    .progression-note.deload {
+      background: rgba(100,116,139,0.08);
+      border-color: rgba(100,116,139,0.2);
+    }
+    .prog-label {
+      font-size: 10px; font-weight: 700; letter-spacing: 1px;
+      text-transform: uppercase; color: #d97706; margin-bottom: 4px;
+    }
+    .progression-note.deload .prog-label { color: #64748b; }
+    .prog-text { font-size: 12px; color: #a39890; line-height: 1.5; }
+
+    /* ── Out notes ── */
+    .out-notes {
+      margin-top: 20px; padding-top: 18px;
+      border-top: 1px solid #252420;
+    }
+    .notes-title {
+      font-size: 10px; font-weight: 700; letter-spacing: 1.5px;
+      text-transform: uppercase; color: #4a4744; margin-bottom: 10px;
+    }
+    .note {
+      font-size: 12px; color: #6b6560;
+      padding: 3px 0 3px 14px;
+      position: relative; line-height: 1.5;
+    }
+    .note::before { content: '›'; position: absolute; left: 0; color: #d97706; font-weight: 700; }
+
+    /* ── Copy btn ── */
+    .copy-btn {
+      width: 100%; margin-top: 10px; padding: 12px;
+      background: transparent; color: #6b6560;
+      border: 1.5px solid #2a2926; border-radius: 10px;
+      font-size: 13px; font-weight: 600; cursor: pointer;
+      transition: all 0.15s; letter-spacing: 0.3px;
+    }
+    .copy-btn:hover  { background: #1f1e1c; color: #a39890; border-color: #3a3834; }
+    .copy-btn.copied { background: rgba(34,197,94,0.1); color: #4ade80; border-color: rgba(34,197,94,0.3); }
+
+    .hidden { display: none; }
+
+    @media (max-width: 480px) {
+      .block-grid { grid-template-columns: 1fr 1fr; }
+      .form-row-2 { grid-template-columns: 1fr; }
+      .exercise-row { grid-template-columns: 1fr; }
+      .ex-right { flex-direction: row; align-items: center; margin-top: 6px; }
+    }
+  </style>
+</head>
+<body>
+
+<nav class="site-nav">
+  <a href="index.html" class="nav-link">Run Plan</a>
+  <a href="strength.html" class="nav-link active">Strength Plan</a>
+</nav>
+
+<div class="container">
+
+  <header>
+    <h1>Strength Plan</h1>
+    <p>Runner-specific strength, matched to your training block</p>
+    <span class="badge">Lower Body + Core</span>
+  </header>
+
+  <!-- ── Block ── -->
+  <div class="card">
+    <h2>1. Current Training Block</h2>
+    <div class="block-grid" id="blockGrid">
+      <div class="block-card" data-block="base"
+           style="--block-color:#14b8a6;--block-text:#0d9488;--block-bg:rgba(20,184,166,0.08)"
+           onclick="selectBlock('base')">
+        <div class="block-dot" style="--block-color:#14b8a6"></div>
+        <div class="block-name">Base</div>
+        <div class="block-goal">Anatomical adaptation &amp; general strength</div>
+      </div>
+      <div class="block-card" data-block="build"
+           style="--block-color:#ef4444;--block-text:#dc2626;--block-bg:rgba(239,68,68,0.08)"
+           onclick="selectBlock('build')">
+        <div class="block-dot" style="--block-color:#ef4444"></div>
+        <div class="block-name">Build</div>
+        <div class="block-goal">Maximal strength → running economy</div>
+      </div>
+      <div class="block-card" data-block="peak"
+           style="--block-color:#8b5cf6;--block-text:#7c3aed;--block-bg:rgba(139,92,246,0.08)"
+           onclick="selectBlock('peak')">
+        <div class="block-dot" style="--block-color:#8b5cf6"></div>
+        <div class="block-name">Peak</div>
+        <div class="block-goal">Power &amp; explosive conversion</div>
+      </div>
+      <div class="block-card" data-block="taper"
+           style="--block-color:#64748b;--block-text:#475569;--block-bg:rgba(100,116,139,0.08)"
+           onclick="selectBlock('taper')">
+        <div class="block-dot" style="--block-color:#64748b"></div>
+        <div class="block-name">Taper</div>
+        <div class="block-goal">Neural maintenance, shed fatigue</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Sessions & Week ── -->
+  <div class="card">
+    <h2>2. Setup</h2>
+    <div class="form-row-2">
+      <div class="form-group">
+        <label>Sessions per Week</label>
+        <div class="pill-toggle" id="sessionToggle">
+          <button class="pill-btn" onclick="setSessions(1)">1</button>
+          <button class="pill-btn active" onclick="setSessions(2)">2</button>
+          <button class="pill-btn" onclick="setSessions(3)">3</button>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Week in Block</label>
+        <div class="stepper">
+          <button class="stepper-btn" onclick="changeWeek(-1)">−</button>
+          <span class="stepper-val" id="weekVal">1</span>
+          <button class="stepper-btn" onclick="changeWeek(1)">+</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Equipment ── -->
+  <div class="card">
+    <h2>3. Available Equipment</h2>
+    <div class="chips" id="equipChips">
+      <span class="chip selected locked" data-equip="bodyweight">Bodyweight</span>
+      <span class="chip" data-equip="dumbbells" onclick="toggleEquip(this)">Dumbbells</span>
+      <span class="chip" data-equip="barbell" onclick="toggleEquip(this)">Barbell</span>
+      <span class="chip" data-equip="gym" onclick="toggleEquip(this)">Full Gym</span>
+    </div>
+  </div>
+
+  <div id="errorMsg" class="error-msg hidden"></div>
+
+  <button class="generate-btn" onclick="generate()">Generate Strength Plan →</button>
+
+  <!-- ── Output ── -->
+  <div id="output" class="hidden">
+    <div class="output-card" id="outputCard"></div>
+    <button class="copy-btn" id="copyBtn" onclick="copyPlan()">Copy Plan as Text</button>
+  </div>
+
+</div>
+
+<script>
+  /* ─────────────────────────────────────────
+     STATE
+  ───────────────────────────────────────── */
+  let selectedBlock = null;
+  let selectedSessions = 2;
+  let currentWeek = 1;
+  let lastPlan = null;
+
+  /* ─────────────────────────────────────────
+     BLOCK PROFILES
+  ───────────────────────────────────────── */
+  const BLOCKS = {
+    base: {
+      name: 'Base', color: '#14b8a6',
+      goal: 'Anatomical adaptation & general strength',
+      science: 'Beattie et al. 2017 — build connective tissue tolerance before heavy loading',
+      rpe: [6, 7], sets: 3, repScheme: '12–15', rest: '45–60s',
+      compoundCat: 'strength', compoundCount: 3, isoCount: 1, coreCount: 2,
+      notes: [
+        'Focus on technique and movement quality — not load',
+        'High reps build connective tissue tolerance for heavier blocks ahead',
+        'Keep RPE honest: 12–15 reps should feel challenging but controlled',
+        'Place on easy run days — never the day before a quality session',
+      ]
+    },
+    build: {
+      name: 'Build', color: '#ef4444',
+      goal: 'Maximal strength → running economy',
+      science: 'Støren et al. 2008 — heavy strength (4×4RM) improved running economy 5% and time to exhaustion 21%',
+      rpe: [8, 9], sets: 4, repScheme: '3–6', rest: '2–3 min',
+      compoundCat: 'strength', compoundCount: 4, isoCount: 1, coreCount: 1,
+      notes: [
+        'This is your heaviest phase — RPE 8–9 means near-maximal effort',
+        'Long rest is essential for true maximal strength stimulus',
+        'Heavy strength training improves running economy — commit to the load',
+        'Allow 48h between strength and quality run sessions',
+      ]
+    },
+    peak: {
+      name: 'Peak', color: '#8b5cf6',
+      goal: 'Power & explosive conversion',
+      science: 'Spurrs et al. 2003 — 6-week plyometrics improved running economy 6%, 3k time 2.7%',
+      rpe: [7, 8], sets: 3, repScheme: '4–6 (explosive)', rest: '2 min',
+      compoundCat: 'power', compoundCount: 3, isoCount: 1, coreCount: 1,
+      notes: [
+        'Every rep must be maximal intent — speed and explosiveness, not fatigue',
+        'Quality over quantity: stop a set if ground contact time slows',
+        'Converting strength to power — this is what carries into race day',
+        'Reduce volume vs. Build but maintain intensity',
+      ]
+    },
+    taper: {
+      name: 'Taper', color: '#64748b',
+      goal: 'Neural maintenance, shed fatigue',
+      science: 'Mujika & Padilla 2003 — maintain intensity during taper to preserve neuromuscular adaptations',
+      rpe: [6, 7], sets: 2, repScheme: '4–5', rest: '90s',
+      compoundCat: 'strength', compoundCount: 2, isoCount: 1, coreCount: 1,
+      notes: [
+        'Volume cuts 40–60% — this is intentional. Intensity stays.',
+        'Goal is to keep the nervous system primed, not to accumulate more stress',
+        'Do not add extra sets or exercises — trust the taper',
+        'Perform 5–7 days before race for optimal neuromuscular freshness',
+      ]
+    },
+  };
+
+  /* ─────────────────────────────────────────
+     EXERCISE LIBRARY (lower body + core only)
+  ───────────────────────────────────────── */
+  const EXERCISES = [
+    // STRENGTH — compounds
+    { name:'Bodyweight Squat',        equip:'bodyweight', cat:'strength', cue:'Full depth, knees track toes, upright torso' },
+    { name:'Goblet Squat',            equip:'dumbbells',  cat:'strength', cue:'Hold dumbbell at chest, elbows in, full depth' },
+    { name:'Back Squat',              equip:'barbell',    cat:'strength', cue:'Bar on traps, brace core, knees out' },
+    { name:'Romanian Deadlift',       equip:'dumbbells',  cat:'strength', cue:'Hip hinge, soft knee, flat back, feel hamstrings' },
+    { name:'Barbell RDL',             equip:'barbell',    cat:'strength', cue:'Bar close to legs, hip hinge, neutral spine' },
+    { name:'Hip Thrust (BW)',         equip:'bodyweight', cat:'strength', cue:'Shoulders on bench, drive heels, full hip ext.' },
+    { name:'Hip Thrust (Barbell)',     equip:'barbell',    cat:'strength', cue:'Posterior tilt at top, glute squeeze, controlled' },
+    { name:'Bulgarian Split Squat',   equip:'bodyweight', cat:'strength', cue:'Rear foot elevated, front knee tracks toe' },
+    { name:'DB Bulgarian Split Squat',equip:'dumbbells',  cat:'strength', cue:'Control descent, drive through front heel' },
+    { name:'Step-Up',                 equip:'bodyweight', cat:'strength', cue:'Full hip extension at top, drive through heel' },
+    { name:'Weighted Step-Up',        equip:'dumbbells',  cat:'strength', cue:'Avoid pushing off rear foot, tall posture' },
+    { name:'Walking Lunge',           equip:'bodyweight', cat:'strength', cue:'Upright torso, controlled stride, knee to 90°' },
+    { name:'DB Walking Lunge',        equip:'dumbbells',  cat:'strength', cue:'Keep torso tall, long stride, control descent' },
+    { name:'Single-Leg RDL (BW)',     equip:'bodyweight', cat:'strength', cue:'Hip hinge on one leg, hips square throughout' },
+    { name:'Single-Leg RDL (DB)',     equip:'dumbbells',  cat:'strength', cue:'Slow 3s eccentric, control balance, hips square' },
+    { name:'Calf Raise',              equip:'bodyweight', cat:'strength', cue:'Full range — heels below platform, 3s down' },
+    { name:'Weighted Calf Raise',     equip:'dumbbells',  cat:'strength', cue:'Slow 3s eccentric, pause at bottom, full ROM' },
+    { name:'Leg Press',               equip:'gym',        cat:'strength', cue:'Feet hip-width, full ROM, no lockout at top' },
+    { name:'Leg Curl',                equip:'gym',        cat:'strength', cue:'Controlled eccentric, full ROM, hips flat' },
+
+    // POWER / PLYOMETRIC
+    { name:'Box Jump',                equip:'bodyweight', cat:'power', cue:'Soft landing, full hip extension at top, step down' },
+    { name:'Bounding',                equip:'bodyweight', cat:'power', cue:'Alt legs, drive knee up, minimize ground contact' },
+    { name:'Single-Leg Hop',          equip:'bodyweight', cat:'power', cue:'3–5 hops each side, stiff ankle, maximal distance' },
+    { name:'Pogo Hops',               equip:'bodyweight', cat:'power', cue:'Stiff ankle, minimal contact, both feet together' },
+    { name:'Jump Squat',              equip:'bodyweight', cat:'power', cue:'Quarter squat, maximal height, soft land, absorb' },
+    { name:'Weighted Jump Squat',     equip:'dumbbells',  cat:'power', cue:'Light weight, maximal intent, soft land at bottom' },
+    { name:'Split-Squat Jump',        equip:'bodyweight', cat:'power', cue:'Switch legs mid-air, land soft, minimal contact' },
+    { name:'Depth Jump',              equip:'bodyweight', cat:'power', cue:'Step off box, minimize floor contact, reactive jump' },
+    { name:'Lateral Bound',           equip:'bodyweight', cat:'power', cue:'Push off one foot, land on opposite, stick landing' },
+
+    // ISOMETRIC / STABILITY
+    { name:'Copenhagen Plank',        equip:'bodyweight', cat:'iso', cue:'Inner thigh on bench, hips stacked, straight line' },
+    { name:'Wall Sit',                equip:'bodyweight', cat:'iso', cue:'90° knee angle, back flat on wall, breathe' },
+    { name:'Isometric Calf Hold',     equip:'bodyweight', cat:'iso', cue:'Tiptoes on edge, hold — builds Achilles tendon stiffness' },
+    { name:'Single-Leg Balance',      equip:'bodyweight', cat:'iso', cue:'Slight knee bend, eyes closed progression, 30s+' },
+    { name:'Spanish Squat Hold',      equip:'bodyweight', cat:'iso', cue:'Band/rope around post, vertical shin, isometric hold' },
+
+    // CORE
+    { name:'Plank',                   equip:'bodyweight', cat:'core', cue:'Neutral spine, glutes tight, no sagging hips' },
+    { name:'Side Plank',              equip:'bodyweight', cat:'core', cue:'Hips stacked, full hip extension, do not drop' },
+    { name:'Dead Bug',                equip:'bodyweight', cat:'core', cue:'Lower back pressed flat throughout, breathe out' },
+    { name:'Hollow Hold',             equip:'bodyweight', cat:'core', cue:'Lower back flat, arms overhead, chin tucked' },
+    { name:'Bird Dog',                equip:'bodyweight', cat:'core', cue:'Opposite arm-leg, hips level, slow controlled' },
+    { name:'Lying Leg Raise',         equip:'bodyweight', cat:'core', cue:'Lower back stays flat, control the descent' },
+    { name:'Pallof Press',            equip:'gym',        cat:'core', cue:'Cable at chest height, press out, resist rotation' },
+  ];
+
+  /* ─────────────────────────────────────────
+     EQUIPMENT FILTER
+  ───────────────────────────────────────── */
+  function equipAvailable(exEquip, userSet) {
+    if (exEquip === 'bodyweight') return true;
+    if (exEquip === 'dumbbells')  return userSet.has('dumbbells') || userSet.has('barbell') || userSet.has('gym');
+    if (exEquip === 'barbell')    return userSet.has('barbell') || userSet.has('gym');
+    if (exEquip === 'gym')        return userSet.has('gym');
+    return false;
+  }
+
+  /* ─────────────────────────────────────────
+     WEEK PROGRESSION
+  ───────────────────────────────────────── */
+  function getWeekModifier(week) {
+    const cycle = ((week - 1) % 4) + 1;
+    if (cycle === 4) return { deload: true,  label: 'Deload Week',    text: 'Reduce sets by 1. Lighter load. Let the adaptation sink in — this is where gains are realized.' };
+    if (cycle === 3) return { deload: false, label: `Week ${week} — Overload`, text: 'Aim to add load vs. last week, or squeeze out 1 extra rep at the same weight. Track your numbers.' };
+    if (cycle === 2) return { deload: false, label: `Week ${week} — Build`,    text: 'Build on last week. If sets felt manageable, add a small amount of load on compound lifts.' };
+    return           { deload: false, label: `Week ${week} — Baseline`, text: 'Establish your baseline. Focus on technique and calibrating RPE. Do not chase load this week.' };
+  }
+
+  /* ─────────────────────────────────────────
+     PICK WITH ROTATION
+  ───────────────────────────────────────── */
+  function rotatePick(pool, k, sessionIdx) {
+    if (!pool.length) return [];
+    const out = [];
+    for (let i = 0; i < k; i++) {
+      out.push(pool[(sessionIdx * k + i) % pool.length]);
+    }
+    // De-dupe (if pool small)
+    const seen = new Set();
+    return out.filter(e => {
+      if (seen.has(e.name)) return false;
+      seen.add(e.name); return true;
+    });
+  }
+
+  /* ─────────────────────────────────────────
+     BUILD EXERCISE ENTRY
+  ───────────────────────────────────────── */
+  function buildEntry(ex, block, type, deload) {
+    let sets   = deload ? Math.max(1, block.sets - 1) : block.sets;
+    let reps   = block.repScheme;
+    let rest   = block.rest;
+    let rpe    = block.rpe;
+    let isTime = false;
+
+    if (type === 'iso') {
+      sets   = deload ? 2 : 3;
+      reps   = '30–45s';
+      rest   = '45s';
+      rpe    = [6, 7];
+      isTime = true;
+    } else if (type === 'core') {
+      sets = deload ? 2 : 3;
+      rest = '45s';
+      rpe  = [7, 7];
+      if (ex.name.includes('Plank') || ex.name.includes('Hold')) {
+        reps = '30–45s'; isTime = true;
+      } else {
+        reps = '10–12';
+      }
+    } else if (ex.cat === 'power') {
+      reps   = '4–6 (max intent)';
+      rest   = '2 min';
+    }
+
+    return { ...ex, sets, reps, rest, rpe, isTime };
+  }
+
+  /* ─────────────────────────────────────────
+     GENERATE
+  ───────────────────────────────────────── */
+  function generate() {
+    document.getElementById('errorMsg').classList.add('hidden');
+    document.getElementById('output').classList.add('hidden');
+
+    if (!selectedBlock) {
+      showError('Select a training block.'); return;
+    }
+
+    const block    = BLOCKS[selectedBlock];
+    const { deload, label, text } = getWeekModifier(currentWeek);
+
+    // Build equipment set
+    const equipSet = new Set(['bodyweight']);
+    document.querySelectorAll('#equipChips .chip.selected').forEach(c => {
+      equipSet.add(c.dataset.equip);
+    });
+
+    // Filter library
+    const avail       = EXERCISES.filter(e => equipAvailable(e.equip, equipSet));
+    const strengthPool = avail.filter(e => e.cat === 'strength');
+    const powerPool    = avail.filter(e => e.cat === 'power');
+    const isoPool      = avail.filter(e => e.cat === 'iso');
+    const corePool     = avail.filter(e => e.cat === 'core');
+
+    if (strengthPool.length < 2 && powerPool.length < 2) {
+      showError('Not enough exercises for selected equipment. Try adding Dumbbells.'); return;
+    }
+
+    // Build sessions
+    const sessions = [];
+    for (let s = 0; s < selectedSessions; s++) {
+      const entries = [];
+
+      if (selectedBlock === 'peak') {
+        rotatePick(powerPool,    block.compoundCount, s).forEach(e => entries.push(buildEntry(e, block, 'power',    deload)));
+        rotatePick(isoPool,      block.isoCount,      s).forEach(e => entries.push(buildEntry(e, block, 'iso',      deload)));
+        rotatePick(corePool,     block.coreCount,     s).forEach(e => entries.push(buildEntry(e, block, 'core',     deload)));
+      } else if (selectedBlock === 'taper') {
+        rotatePick(strengthPool, 2, s).forEach(e => entries.push(buildEntry(e, block, 'compound', deload)));
+        rotatePick(powerPool,    1, s).forEach(e => entries.push(buildEntry(e, block, 'power',    deload)));
+        rotatePick(corePool,     1, s).forEach(e => entries.push(buildEntry(e, block, 'core',     deload)));
+      } else {
+        rotatePick(strengthPool, block.compoundCount, s).forEach(e => entries.push(buildEntry(e, block, 'compound', deload)));
+        rotatePick(isoPool,      block.isoCount,      s).forEach(e => entries.push(buildEntry(e, block, 'iso',      deload)));
+        rotatePick(corePool,     block.coreCount,     s).forEach(e => entries.push(buildEntry(e, block, 'core',     deload)));
+      }
+
+      sessions.push(entries);
+    }
+
+    lastPlan = { block, blockKey: selectedBlock, sessions, week: currentWeek, weekLabel: label, weekText: text, deload, equipSet: [...equipSet] };
+    renderOutput(lastPlan);
+  }
+
+  /* ─────────────────────────────────────────
+     RENDER
+  ───────────────────────────────────────── */
+  function rpeClass(rpe) {
+    const avg = (rpe[0] + rpe[1]) / 2;
+    if (avg >= 8.5) return 'rpe-red';
+    if (avg >= 7.5) return 'rpe-amber';
+    return 'rpe-green';
+  }
+
+  function rpeLabel(entry) {
+    if (entry.isTime) return `RPE ${entry.rpe[0]}–${entry.rpe[1]}`;
+    return `RPE ${entry.rpe[0]}–${entry.rpe[1]}`;
+  }
+
+  function renderEntry(e) {
+    const specParts = [`${e.sets} × ${e.reps}`, `Rest ${e.rest}`];
+    return `
+      <div class="exercise-row">
+        <div class="ex-left">
+          <div class="ex-name">${e.name}</div>
+          <div class="ex-spec">${specParts.join('  ·  ')}</div>
+          <div class="ex-cue">${e.cue}</div>
+        </div>
+        <div class="ex-right">
+          <span class="rpe-badge ${rpeClass(e.rpe)}">${rpeLabel(e)}</span>
+        </div>
+      </div>
+    `;
+  }
+
+  function renderOutput({ block, sessions, week, weekLabel, weekText, deload }) {
+    const sessionHeaders = sessions.length === 1
+      ? ['This Week\'s Session']
+      : sessions.map((_, i) => `Session ${i + 1}`);
+
+    const sessionsHTML = sessions.map((entries, i) => `
+      <div class="session-block">
+        <div class="session-title" style="color:${block.color}88">${sessionHeaders[i]}</div>
+        ${entries.map(renderEntry).join('')}
+      </div>
+    `).join('');
+
+    const progClass = deload ? 'progression-note deload' : 'progression-note';
+
+    const notesHTML = block.notes.map(n => `<div class="note">${n}</div>`).join('');
+
+    document.getElementById('outputCard').innerHTML = `
+      <div class="out-header">
+        <div class="out-eyebrow" style="color:${block.color}">${block.name} Block</div>
+        <div class="out-title">${block.goal}</div>
+        <div class="out-subtitle">Week ${week} · ${sessions.length} session${sessions.length > 1 ? 's' : ''} this week</div>
+        <div class="out-pills" style="margin-top:10px">
+          <span class="pill-info" style="background:${block.color}18;color:${block.color}">
+            ${block.sets} sets · ${block.repScheme} reps
+          </span>
+          <span class="pill-info" style="background:rgba(107,101,96,0.15);color:#a39890">
+            Rest ${block.rest}
+          </span>
+          <span class="pill-info" style="background:rgba(107,101,96,0.15);color:#a39890">
+            RPE ${block.rpe[0]}–${block.rpe[1]}
+          </span>
+        </div>
+      </div>
+
+      <div class="sessions">${sessionsHTML}</div>
+
+      <div class="${progClass}" style="margin-top:16px">
+        <div class="prog-label">${weekLabel}</div>
+        <div class="prog-text">${weekText}</div>
+      </div>
+
+      <div class="out-notes">
+        <div class="notes-title">Block Guidance</div>
+        ${notesHTML}
+        <div class="note" style="margin-top:6px;color:#4a4744;font-size:11px">
+          ${block.science}
+        </div>
+      </div>
+    `;
+
+    document.getElementById('output').classList.remove('hidden');
+    document.getElementById('output').scrollIntoView({ behavior:'smooth' });
+  }
+
+  /* ─────────────────────────────────────────
+     COPY AS TEXT
+  ───────────────────────────────────────── */
+  function buildPlanText({ block, sessions, week, weekLabel, weekText, deload, equipSet }) {
+    const sessionHeaders = sessions.length === 1 ? ['Session'] : sessions.map((_, i) => `Session ${i + 1}`);
+    const lines = [
+      `💪 Strength Plan — ${block.name} Block  |  Week ${week}`,
+      `${block.goal}`,
+      `${block.sets}×${block.repScheme} reps  ·  Rest ${block.rest}  ·  RPE ${block.rpe[0]}–${block.rpe[1]}`,
+      '',
+    ];
+
+    sessions.forEach((entries, i) => {
+      lines.push(`── ${sessionHeaders[i]} ──`);
+      entries.forEach(e => {
+        lines.push(`${e.name}  ${e.sets}×${e.reps}  |  Rest ${e.rest}  |  RPE ${e.rpe[0]}–${e.rpe[1]}`);
+        lines.push(`   ↳ ${e.cue}`);
+      });
+      lines.push('');
+    });
+
+    lines.push(`📈 ${weekLabel}: ${weekText}`);
+    lines.push('');
+    block.notes.forEach(n => lines.push(`› ${n}`));
+
+    return lines.join('\n');
+  }
+
+  async function copyPlan() {
+    if (!lastPlan) return;
+    const text = buildPlanText(lastPlan);
+    const btn  = document.getElementById('copyBtn');
+    try {
+      await navigator.clipboard.writeText(text);
+    } catch {
+      const ta = Object.assign(document.createElement('textarea'),
+        { value: text, style: 'position:fixed;opacity:0' });
+      document.body.appendChild(ta);
+      ta.select();
+      document.execCommand('copy');
+      document.body.removeChild(ta);
+    }
+    btn.textContent = '✓ Copied!';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = 'Copy Plan as Text'; btn.classList.remove('copied'); }, 2000);
+  }
+
+  /* ─────────────────────────────────────────
+     UI CONTROLS
+  ───────────────────────────────────────── */
+  function selectBlock(key) {
+    selectedBlock = key;
+    document.querySelectorAll('.block-card').forEach(c => {
+      c.classList.toggle('selected', c.dataset.block === key);
+    });
+  }
+
+  function setSessions(n) {
+    selectedSessions = n;
+    document.querySelectorAll('#sessionToggle .pill-btn').forEach((b, i) => {
+      b.classList.toggle('active', i + 1 === n);
+    });
+  }
+
+  function changeWeek(delta) {
+    currentWeek = Math.max(1, currentWeek + delta);
+    document.getElementById('weekVal').textContent = currentWeek;
+  }
+
+  function toggleEquip(chip) {
+    chip.classList.toggle('selected');
+  }
+
+  function showError(msg) {
+    const el = document.getElementById('errorMsg');
+    el.textContent = msg;
+    el.classList.remove('hidden');
+    el.scrollIntoView({ behavior:'smooth', block:'center' });
+  }
+</script>
+</body>
+</html>

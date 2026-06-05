@@ -12,10 +12,10 @@
       background: #f0f4f8;
       color: #1a2e44;
       min-height: 100vh;
-      padding: 32px 16px 64px;
+      padding: 0 0 64px;
     }
 
-    .container { max-width: 700px; margin: 0 auto; }
+    .container { max-width: 700px; margin: 0 auto; padding: 32px 16px 0; }
 
     /* ── Header ── */
     header { text-align: center; margin-bottom: 36px; }
@@ -255,6 +255,22 @@
 
     .hidden { display: none; }
 
+    /* ── Nav ── */
+    .site-nav {
+      display: flex; justify-content: center;
+      gap: 6px; padding: 14px 16px;
+      border-bottom: 1px solid #e2e8f0;
+      background: #fff;
+    }
+    .nav-link {
+      font-size: 12px; font-weight: 700; letter-spacing: 0.8px;
+      text-transform: uppercase; text-decoration: none;
+      padding: 7px 16px; border-radius: 20px;
+      color: #94a3b8; transition: all 0.15s;
+    }
+    .nav-link:hover { color: #475569; background: #f1f5f9; }
+    .nav-link.active { background: #0f2744; color: #93c5fd; }
+
     @media (max-width: 560px) {
       .form-row { grid-template-columns: 1fr; }
       .day-grid  { grid-template-columns: repeat(4, 1fr); }
@@ -264,6 +280,10 @@
   </style>
 </head>
 <body>
+<nav class="site-nav">
+  <a href="index.html" class="nav-link active">Run Plan</a>
+  <a href="strength.html" class="nav-link">Strength Plan</a>
+</nav>
 <div class="container">
 
   <header>

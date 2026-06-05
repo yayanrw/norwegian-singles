@@ -18,7 +18,7 @@ An adaptation of the elite Norwegian double-threshold model for recreational run
 
 ---
 
-## Core Principles
+## Core Principlescre
 
 ### 1. Sub-Threshold Focus (LT2)
 - All quality work occurs **just below the second lactate threshold (LT2)** — "sweetspot" = high Zone 3 / low Zone 4 in a 5-zone model.
