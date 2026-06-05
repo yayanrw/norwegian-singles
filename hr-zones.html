@@ -9,8 +9,8 @@
 
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      background: #fafafa;
-      color: #374151;
+      background: #110d10;
+      color: #c9b8be;
       min-height: 100vh;
       padding: 0 0 64px;
     }
@@ -19,24 +19,24 @@
     .site-nav {
       display: flex; justify-content: center;
       gap: 6px; padding: 14px 16px;
-      border-bottom: 1px solid #fce7ec;
-      background: #fff;
+      border-bottom: 1px solid #2a1820;
+      background: #0a0709;
     }
     .nav-link {
       font-size: 12px; font-weight: 700; letter-spacing: 0.8px;
       text-transform: uppercase; text-decoration: none;
       padding: 7px 16px; border-radius: 20px;
-      color: #9ca3af; transition: all 0.15s;
+      color: #6b525a; transition: all 0.15s;
     }
-    .nav-link:hover { color: #6b7280; background: #fdf2f4; }
+    .nav-link:hover { color: #c9b8be; background: #1e1318; }
     .nav-link.active { background: #e11d48; color: #fff; }
 
     .container { max-width: 700px; margin: 0 auto; padding: 28px 16px 0; }
 
     /* ── Header ── */
     header { text-align: center; margin-bottom: 32px; }
-    header h1 { font-size: 26px; font-weight: 800; color: #111827; letter-spacing: -0.5px; }
-    header p  { font-size: 14px; color: #9ca3af; margin-top: 5px; }
+    header h1 { font-size: 26px; font-weight: 800; color: #f0e8ec; letter-spacing: -0.5px; }
+    header p  { font-size: 14px; color: #6b525a; margin-top: 5px; }
     .badge {
       display: inline-block; margin-top: 10px;
       font-size: 11px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase;
@@ -45,28 +45,78 @@
 
     /* ── Cards ── */
     .card {
-      background: #fff;
+      background: #1c1519;
       border-radius: 14px;
       padding: 24px;
       margin-bottom: 12px;
-      border: 1px solid #f3e0e4;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+      border: 1px solid #2e1f27;
     }
     .card h2 {
       font-size: 11px; font-weight: 700;
       text-transform: uppercase; letter-spacing: 1px;
-      color: #d1a0a8; margin-bottom: 18px;
+      color: #5a3a44; margin-bottom: 18px;
     }
 
     /* ── Form group ── */
     .form-group { display: flex; flex-direction: column; gap: 8px; }
-    .form-group label { font-size: 13px; font-weight: 600; color: #6b7280; }
-    .form-hint { font-size: 11px; color: #b0b9c8; margin-top: 4px; }
+    .form-group label { font-size: 13px; font-weight: 600; color: #8a7278; }
+    .form-hint { font-size: 11px; color: #4a3840; margin-top: 4px; }
+
+    /* ── Pill toggle ── */
+    .pill-toggle {
+      display: flex; background: #0d090c;
+      border-radius: 10px; padding: 4px; gap: 3px;
+      border: 1px solid #2e1f27;
+    }
+    .pill-btn {
+      flex: 1; padding: 8px 0;
+      text-align: center; font-size: 12px; font-weight: 700;
+      border-radius: 7px; border: none; background: transparent;
+      color: #5a3a44; cursor: pointer; transition: all 0.15s;
+    }
+    .pill-btn.active { background: #e11d48; color: #fff; }
+    .pill-btn:hover:not(.active) { background: #2a1520; color: #f43f5e; }
+
+    /* ── Info icon + popover ── */
+    .info-btn {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 15px; height: 15px; border-radius: 50%;
+      background: transparent; border: 1px solid #4a3840;
+      color: #4a3840; font-size: 9px; font-weight: 800;
+      cursor: pointer; vertical-align: middle; margin-left: 5px;
+      transition: all 0.15s; line-height: 1; padding: 0; font-style: italic;
+    }
+    .info-btn:hover, .info-btn.open { background: #e11d48; border-color: #e11d48; color: #fff; }
+
+    .info-popover {
+      margin-top: 8px; margin-bottom: 4px;
+      background: #0d090c; border: 1px solid #2e1f27;
+      border-radius: 10px; padding: 14px;
+      animation: fadeIn 0.15s ease;
+    }
+    @keyframes fadeIn { from { opacity:0; transform:translateY(-4px); } to { opacity:1; transform:translateY(0); } }
+    .info-popover-title {
+      font-size: 10px; font-weight: 700; letter-spacing: 1px;
+      text-transform: uppercase; color: #5a3a44; margin-bottom: 10px;
+    }
+    .info-row {
+      display: flex; gap: 10px; align-items: flex-start; margin-bottom: 8px;
+    }
+    .info-row:last-of-type { margin-bottom: 0; }
+    .info-tag {
+      font-size: 11px; font-weight: 700; color: #f0e8ec;
+      white-space: nowrap; min-width: 88px;
+    }
+    .info-desc { font-size: 11px; color: #7a6268; line-height: 1.5; }
+    .info-note {
+      margin-top: 10px; padding-top: 10px; border-top: 1px solid #1e1318;
+      font-size: 11px; color: #4a3840; font-style: italic; line-height: 1.5;
+    }
 
     /* ── Stepper ── */
     .stepper {
       display: flex; align-items: center;
-      background: #f9fafb; border: 1.5px solid #e5e7eb;
+      background: #110d10; border: 1.5px solid #2e1f27;
       border-radius: 10px; overflow: hidden;
       transition: border-color 0.15s;
     }
@@ -74,19 +124,19 @@
     .stepper-btn {
       width: 48px; height: 52px;
       background: transparent; border: none;
-      color: #9ca3af; font-size: 22px; cursor: pointer;
+      color: #5a3a44; font-size: 22px; cursor: pointer;
       display: flex; align-items: center; justify-content: center;
       transition: background 0.1s, color 0.1s;
     }
-    .stepper-btn:hover { background: #fce7ec; color: #e11d48; }
+    .stepper-btn:hover { background: #2a1520; color: #f43f5e; }
     .stepper-inner {
       flex: 1; display: flex; align-items: center; justify-content: center; gap: 6px;
     }
     .stepper-val {
-      font-size: 28px; font-weight: 800; color: #111827;
+      font-size: 28px; font-weight: 800; color: #f0e8ec;
       min-width: 56px; text-align: center;
     }
-    .stepper-unit { font-size: 12px; font-weight: 600; color: #9ca3af; }
+    .stepper-unit { font-size: 12px; font-weight: 600; color: #5a3a44; }
 
     /* ── Button ── */
     .generate-btn {
@@ -97,33 +147,32 @@
       cursor: pointer; transition: opacity 0.15s, transform 0.1s;
       margin-bottom: 24px; letter-spacing: 0.3px;
     }
-    .generate-btn:hover  { opacity: 0.9; }
+    .generate-btn:hover  { opacity: 0.88; }
     .generate-btn:active { transform: scale(0.99); }
 
     /* ── Error ── */
     .error-msg {
-      background: #fef2f4; border: 1px solid #fca5a5;
+      background: #1f0a10; border: 1px solid #7f1d1d;
       border-radius: 9px; padding: 12px 16px;
-      color: #dc2626; font-size: 13px;
+      color: #fca5a5; font-size: 13px;
       margin-bottom: 14px;
     }
 
     /* ── Output wrapper ── */
     .output-card {
-      background: #fff;
+      background: #0d090c;
       border-radius: 14px;
       padding: 28px 24px;
-      border: 1px solid #f3e0e4;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+      border: 1px solid #2e1f27;
     }
 
     .out-header { text-align: center; margin-bottom: 28px; }
     .out-eyebrow {
       font-size: 11px; font-weight: 700; letter-spacing: 2px;
-      text-transform: uppercase; color: #d1a0a8; margin-bottom: 6px;
+      text-transform: uppercase; color: #5a3a44; margin-bottom: 6px;
     }
-    .out-title { font-size: 20px; font-weight: 800; color: #111827; letter-spacing: -0.3px; }
-    .out-subtitle { font-size: 13px; color: #9ca3af; margin-top: 4px; }
+    .out-title { font-size: 20px; font-weight: 800; color: #f0e8ec; letter-spacing: -0.3px; }
+    .out-subtitle { font-size: 13px; color: #6b525a; margin-top: 4px; }
 
     /* ── Zone bar ── */
     .zone-bar-wrap { margin-bottom: 8px; position: relative; }
@@ -131,7 +180,7 @@
     .quality-label {
       position: absolute; top: -22px;
       font-size: 10px; font-weight: 700; letter-spacing: 0.5px;
-      color: #e11d48; text-transform: uppercase;
+      color: #f43f5e; text-transform: uppercase;
       display: flex; align-items: center; gap: 4px;
     }
     .quality-label::before { content: '★'; }
@@ -147,17 +196,17 @@
       transition: filter 0.15s;
       position: relative; overflow: hidden;
     }
-    .zone-seg:hover { filter: brightness(1.1); }
+    .zone-seg:hover { filter: brightness(1.15); }
     .zone-seg.quality-zone {
-      box-shadow: inset 0 0 0 2px rgba(255,255,255,0.5);
+      box-shadow: inset 0 0 0 2px rgba(255,255,255,0.45);
     }
     .zone-seg.quality-zone::after {
       content: ''; position: absolute; top: 0; left: 0; right: 0;
-      height: 3px; background: rgba(255,255,255,0.7);
+      height: 3px; background: rgba(255,255,255,0.65);
     }
     .seg-z { font-size: 10px; font-weight: 800; color: rgba(255,255,255,0.7); letter-spacing: 0.5px; }
     .seg-range { font-size: 11px; font-weight: 700; color: #fff; margin-top: 3px; text-align: center; line-height: 1.3; }
-    .seg-label { font-size: 9px; color: rgba(255,255,255,0.65); margin-top: 2px; text-align: center; }
+    .seg-label { font-size: 9px; color: rgba(255,255,255,0.6); margin-top: 2px; text-align: center; }
 
     /* ── Zone detail list ── */
     .zone-list { display: flex; flex-direction: column; gap: 8px; margin: 20px 0; }
@@ -165,89 +214,89 @@
       display: grid; grid-template-columns: 10px 120px 1fr auto;
       gap: 12px; align-items: center;
       padding: 10px 14px;
-      border-radius: 9px; background: #f9fafb;
-      border: 1px solid #f3f4f6;
+      border-radius: 9px; background: #1a1217;
+      border: 1px solid #2e1f27;
     }
     .zone-row.quality-zone-row {
-      background: #fdf2f4; border-color: #fca5a5;
+      background: #1f1018; border-color: #6b1530;
     }
     .zone-dot {
       width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0;
     }
-    .zone-name { font-size: 13px; font-weight: 700; color: #111827; }
-    .zone-bpm  { font-size: 12px; color: #6b7280; margin-top: 1px; }
-    .zone-ns-note { font-size: 12px; color: #6b7280; }
-    .zone-row.quality-zone-row .zone-ns-note { color: #be123c; }
+    .zone-name { font-size: 13px; font-weight: 700; color: #f0e8ec; }
+    .zone-bpm  { font-size: 12px; color: #6b525a; margin-top: 1px; }
+    .zone-ns-note { font-size: 12px; color: #5a3a44; }
+    .zone-row.quality-zone-row .zone-ns-note { color: #f87171; }
     .ns-badge {
       font-size: 10px; font-weight: 700; padding: 3px 8px;
       border-radius: 5px; white-space: nowrap; letter-spacing: 0.3px;
       text-align: right;
     }
-    .badge-easy    { background: rgba(34,197,94,0.12);  color: #16a34a; }
-    .badge-quality { background: rgba(225,29,72,0.10);  color: #e11d48; }
-    .badge-cap     { background: rgba(249,115,22,0.12); color: #ea580c; }
+    .badge-easy    { background: rgba(34,197,94,0.15);  color: #4ade80; }
+    .badge-quality { background: rgba(244,63,94,0.18);  color: #f87171; }
+    .badge-cap     { background: rgba(249,115,22,0.15); color: #fb923c; }
     .badge-off     { background: rgba(156,163,175,0.12);color: #6b7280; }
 
     /* ── Z4 warning ── */
     .z4-note {
       margin: -4px 0 12px;
       padding: 9px 14px;
-      background: rgba(249,115,22,0.07);
-      border: 1px solid rgba(249,115,22,0.25);
+      background: rgba(249,115,22,0.06);
+      border: 1px solid rgba(249,115,22,0.2);
       border-radius: 8px;
-      font-size: 12px; color: #9a3412; line-height: 1.5;
+      font-size: 12px; color: #fb923c; line-height: 1.5;
     }
-    .z4-note strong { color: #c2410c; }
+    .z4-note strong { color: #fdba74; }
 
     /* ── Derived values ── */
     .derived-grid {
       display: grid; grid-template-columns: 1fr 1fr;
       gap: 10px; margin-top: 20px; padding-top: 20px;
-      border-top: 1px solid #f3e0e4;
+      border-top: 1px solid #2e1f27;
     }
     .derived-stat {
-      background: #f9fafb; border: 1px solid #f3f4f6;
+      background: #1a1217; border: 1px solid #2e1f27;
       border-radius: 10px; padding: 14px;
     }
-    .derived-stat.highlight { background: #fdf2f4; border-color: #fca5a5; }
+    .derived-stat.highlight { background: #1f1018; border-color: #6b1530; }
     .derived-label {
       font-size: 10px; font-weight: 700; letter-spacing: 1px;
-      text-transform: uppercase; color: #9ca3af; margin-bottom: 4px;
+      text-transform: uppercase; color: #5a3a44; margin-bottom: 4px;
     }
-    .derived-stat.highlight .derived-label { color: #d1a0a8; }
+    .derived-stat.highlight .derived-label { color: #7a3048; }
     .derived-val {
-      font-size: 22px; font-weight: 800; color: #111827;
+      font-size: 22px; font-weight: 800; color: #f0e8ec;
     }
-    .derived-stat.highlight .derived-val { color: #e11d48; }
-    .derived-sub { font-size: 11px; color: #9ca3af; margin-top: 2px; }
+    .derived-stat.highlight .derived-val { color: #f43f5e; }
+    .derived-sub { font-size: 11px; color: #4a3840; margin-top: 2px; }
 
     /* ── Copy btn ── */
     .copy-btn {
       width: 100%; margin-top: 10px; padding: 12px;
-      background: transparent; color: #9ca3af;
-      border: 1.5px solid #e5e7eb; border-radius: 10px;
+      background: transparent; color: #5a3a44;
+      border: 1.5px solid #2e1f27; border-radius: 10px;
       font-size: 13px; font-weight: 600; cursor: pointer;
       transition: all 0.15s; letter-spacing: 0.3px;
     }
-    .copy-btn:hover  { background: #fdf2f4; color: #be123c; border-color: #fca5a5; }
-    .copy-btn.copied { background: rgba(22,163,74,0.08); color: #16a34a; border-color: rgba(22,163,74,0.3); }
+    .copy-btn:hover  { background: #1f1018; color: #f43f5e; border-color: #6b1530; }
+    .copy-btn.copied { background: rgba(74,222,128,0.08); color: #4ade80; border-color: rgba(74,222,128,0.3); }
 
     /* ── Guidance (collapsible) ── */
     .guidance-section { margin-top: 10px; }
     details {
-      background: #fff; border: 1px solid #f3e0e4;
+      background: #1c1519; border: 1px solid #2e1f27;
       border-radius: 12px; overflow: hidden;
       margin-bottom: 8px;
     }
     summary {
       padding: 16px 20px; font-size: 13px; font-weight: 700;
-      color: #374151; cursor: pointer; list-style: none;
+      color: #c9b8be; cursor: pointer; list-style: none;
       display: flex; align-items: center; justify-content: space-between;
       user-select: none;
     }
     summary::-webkit-details-marker { display: none; }
     summary::after {
-      content: '›'; font-size: 16px; color: #d1a0a8;
+      content: '›'; font-size: 16px; color: #5a3a44;
       transition: transform 0.2s;
     }
     details[open] summary::after { transform: rotate(90deg); }
@@ -262,28 +311,101 @@
       display: flex; align-items: center; justify-content: center;
       flex-shrink: 0; margin-top: 1px;
     }
-    .step-text { font-size: 13px; color: #374151; line-height: 1.5; }
-    .step-text strong { color: #111827; }
+    .step-text { font-size: 13px; color: #9a8890; line-height: 1.5; }
+    .step-text strong { color: #f0e8ec; }
 
     .tip-box {
       margin-top: 12px; padding: 10px 14px;
-      background: #fdf2f4; border: 1px solid #fca5a5;
-      border-radius: 8px; font-size: 12px; color: #9f1239; line-height: 1.5;
+      background: #1f1018; border: 1px solid #6b1530;
+      border-radius: 8px; font-size: 12px; color: #f87171; line-height: 1.5;
     }
-    .tip-box strong { color: #be123c; }
+    .tip-box strong { color: #fca5a5; }
 
     .retest-table { width: 100%; border-collapse: collapse; margin-top: 4px; }
     .retest-table th {
       text-align: left; font-size: 10px; font-weight: 700;
       text-transform: uppercase; letter-spacing: 0.5px;
-      color: #d1a0a8; padding: 0 0 8px; border-bottom: 1px solid #f3e0e4;
+      color: #5a3a44; padding: 0 0 8px; border-bottom: 1px solid #2e1f27;
     }
     .retest-table td {
-      font-size: 12px; color: #374151; padding: 8px 0;
-      border-bottom: 1px solid #f9fafb; vertical-align: top;
+      font-size: 12px; color: #9a8890; padding: 8px 0;
+      border-bottom: 1px solid #1a1217; vertical-align: top;
     }
-    .retest-table td:first-child { padding-right: 16px; color: #111827; font-weight: 600; width: 55%; }
+    .retest-table td:first-child { padding-right: 16px; color: #f0e8ec; font-weight: 600; width: 55%; }
     .retest-table tr:last-child td { border-bottom: none; }
+
+    /* ── Sweet spot bracket (below zone bar) ── */
+    .ss-bracket {
+      position: absolute; bottom: 0;
+      height: 26px;
+      display: flex; flex-direction: column; align-items: flex-start;
+      pointer-events: none;
+    }
+    .ss-bracket-line {
+      width: 100%; height: 2px;
+      background: linear-gradient(90deg, #eab308, #f97316);
+      border-radius: 1px; position: relative;
+    }
+    .ss-bracket-line::before,
+    .ss-bracket-line::after {
+      content: ''; position: absolute;
+      width: 2px; height: 7px; top: 0;
+    }
+    .ss-bracket-line::before { left:  0; background: #eab308; }
+    .ss-bracket-line::after  { right: 0; background: #f97316; }
+    .ss-bracket-text {
+      font-size: 9px; font-weight: 700; letter-spacing: 0.6px;
+      color: #c87d20; margin-top: 4px; white-space: nowrap; text-transform: uppercase;
+    }
+
+    /* ── Sweet spot card ── */
+    .sweet-spot-card {
+      margin: 12px 0;
+      background: #17120f; border: 1px solid #3d2a14;
+      border-radius: 12px; overflow: hidden; position: relative;
+    }
+    .sweet-spot-card::before {
+      content: ''; position: absolute; top: 0; left: 0; right: 0;
+      height: 2px; background: linear-gradient(90deg, #eab308, #f97316);
+    }
+    .ss-card-inner { padding: 16px 18px; }
+    .ss-card-header {
+      display: flex; justify-content: space-between; align-items: flex-start;
+      margin-bottom: 14px;
+    }
+    .ss-card-eyebrow {
+      font-size: 10px; font-weight: 700; letter-spacing: 1.5px;
+      text-transform: uppercase; color: #b45309; margin-bottom: 4px;
+    }
+    .ss-card-bpm {
+      font-size: 22px; font-weight: 800;
+      background: linear-gradient(90deg, #eab308, #f97316);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .ss-bpm-unit { font-size: 13px; font-weight: 600; }
+    .ss-pct-label {
+      font-size: 11px; font-weight: 700; color: #5a3a44;
+      background: #0d090c; border: 1px solid #2e1f27;
+      border-radius: 7px; padding: 5px 10px; white-space: nowrap; margin-top: 2px;
+    }
+    .ss-mini-bar {
+      display: flex; border-radius: 8px; overflow: hidden;
+      height: 52px; gap: 2px; margin-bottom: 14px;
+    }
+    .ss-mini-seg {
+      display: flex; flex-direction: column;
+      justify-content: center; align-items: center;
+      padding: 4px 8px;
+    }
+    .ss-seg-label { font-size: 10px; font-weight: 800; color: rgba(255,255,255,0.9); letter-spacing: 0.3px; }
+    .ss-seg-range { font-size: 10px; font-weight: 600; color: rgba(255,255,255,0.65); margin-top: 3px; }
+    .ss-seg-pct   { font-size: 9px; color: rgba(255,255,255,0.4); margin-top: 2px; }
+    .ss-desc {
+      font-size: 12px; color: #6b525a; line-height: 1.65;
+      border-top: 1px solid #2a1a1f; padding-top: 12px; margin-top: 2px;
+    }
+    .ss-desc strong { color: #c9b8be; }
 
     .hidden { display: none; }
 
@@ -314,8 +436,8 @@
 
   <!-- ── Input ── -->
   <div class="card">
-    <h2>Your FTHR</h2>
-    <div class="form-group">
+    <h2>Your Data</h2>
+    <div class="form-group" style="margin-bottom:18px">
       <label>FTHR (from 20-min TT)</label>
       <div class="stepper" id="fthrStepper">
         <button class="stepper-btn" onclick="changeFthr(-1)">−</button>
@@ -326,6 +448,34 @@
         <button class="stepper-btn" onclick="changeFthr(1)">+</button>
       </div>
       <p class="form-hint">Run a 20-min TT → record average HR → multiply by 0.95 → enter the result here.</p>
+    </div>
+    <div class="form-group">
+      <label>
+        Training Status
+        <span style="font-weight:400;color:#4a3840">(for HRmax estimate)</span>
+        <button class="info-btn" id="statusInfoBtn" onclick="toggleStatusInfo(event)" aria-label="What does training status mean?">i</button>
+      </label>
+      <div class="info-popover hidden" id="statusInfoPopover">
+        <div class="info-popover-title">Which status are you?</div>
+        <div class="info-row">
+          <div class="info-tag">Recreational</div>
+          <div class="info-desc">1–3 runs/week, mostly for fitness. No structured plan. FTHR is approximately <strong style="color:#c9b8be">85%</strong> of max HR.</div>
+        </div>
+        <div class="info-row">
+          <div class="info-tag">Trained</div>
+          <div class="info-desc">4–5 runs/week with a training plan, racing occasionally. FTHR is approximately <strong style="color:#c9b8be">88%</strong> of max HR.</div>
+        </div>
+        <div class="info-row">
+          <div class="info-tag">Elite</div>
+          <div class="info-desc">6+ runs/week, high volume, structured periodization. FTHR is approximately <strong style="color:#c9b8be">91%</strong> of max HR.</div>
+        </div>
+        <div class="info-note">A higher ratio means your threshold is a larger fraction of your max — less headroom above it. When in doubt, choose <em>Trained</em>.</div>
+      </div>
+      <div class="pill-toggle" id="statusToggle">
+        <button class="pill-btn" onclick="setStatus('recreational')">Recreational</button>
+        <button class="pill-btn active" onclick="setStatus('trained')">Trained</button>
+        <button class="pill-btn" onclick="setStatus('highly')">Elite</button>
+      </div>
     </div>
   </div>
 
@@ -413,7 +563,11 @@
      STATE
   ───────────────────────────────────────── */
   let fthr       = 165;
+  let status     = 'trained';
   let lastResult = null;
+
+  /* FTHR is ~85–91% of HRmax depending on fitness */
+  const HRMAX_RATIO = { recreational: 0.85, trained: 0.88, highly: 0.91 };
 
   /* ─────────────────────────────────────────
      ZONE DEFINITIONS (% of FTHR)
@@ -430,10 +584,10 @@
       nsRole:'Easy / Aerobic', nsBadge:'badge-easy',
       nsNote:'Target for all easy and long runs — stay in low-to-mid Z2' },
 
-    { z:'Z3', name:'Steady State',
+    { z:'Z3', name:'Aerobic/Tempo',
       lo:0.84, hi:0.94, color:'#eab308',
       nsRole:'Quality Target ★', nsBadge:'badge-quality',
-      nsNote:'Sub-threshold sweet spot — the heart of Norwegian Singles',
+      nsNote:'Upper Z3 into low Z4 = NS sub-threshold sweet spot. Lower Z3 (84–90% FTHR) is still aerobic base.',
       quality: true },
 
     { z:'Z4', name:'Lactate Threshold',
@@ -479,21 +633,36 @@
     });
 
     /* derived NS reference values */
-    const easyCeil  = Math.round(fthr * 0.80);   /* ≈ 70% HRmax for most runners */
-    const qualLo    = Math.round(fthr * 0.84);   /* Z3 lower boundary */
-    const qualHi    = Math.round(fthr * 0.94);   /* Z3 upper boundary */
+    const estHRmax  = Math.round(fthr / HRMAX_RATIO[status]);
+    const easyCeil  = Math.round(0.70 * estHRmax);
+    const qualLo    = Math.round(fthr * 0.84);
+    const qualHi    = Math.round(fthr * 0.94);
 
-    lastResult = { fthr, zones, easyCeil, qualLo, qualHi };
+    /* sub-threshold sweet spot: upper Z3 + low Z4 */
+    const ssLo   = Math.round(fthr * 0.90);   /* where NS quality truly starts */
+    const ssHi   = fthr;                       /* hard cap = FTHR */
+    const ssZ3lo = Math.round(fthr * 0.90);
+    const ssZ3hi = Math.round(fthr * 0.94);
+    const ssZ4lo = Math.round(fthr * 0.95);
+    const ssZ4hi = fthr;
+
+    lastResult = { fthr, status, estHRmax, zones, easyCeil, qualLo, qualHi,
+                   ssLo, ssHi, ssZ3lo, ssZ3hi, ssZ4lo, ssZ4hi };
     renderOutput(lastResult);
   }
 
   /* ─────────────────────────────────────────
      RENDER
   ───────────────────────────────────────── */
-  function renderOutput({ fthr, zones, easyCeil, qualLo, qualHi }) {
+  const STATUS_LABEL = { recreational:'Recreational', trained:'Trained', highly:'Elite / Highly Trained' };
+
+  function renderOutput({ fthr, status, estHRmax, zones, easyCeil, qualLo, qualHi,
+                          ssLo, ssHi, ssZ3lo, ssZ3hi, ssZ4lo, ssZ4hi }) {
     /* zone bar */
-    const totalFlex = Object.values(SEG_FLEX).reduce((a, b) => a + b, 0);
-    const z3Start   = (SEG_FLEX.Z1 + SEG_FLEX.Z2) / totalFlex * 100;
+    const totalFlex  = Object.values(SEG_FLEX).reduce((a, b) => a + b, 0);
+    const z3Start    = (SEG_FLEX.Z1 + SEG_FLEX.Z2) / totalFlex * 100;
+    const ssBarLeft  = z3Start; /* bracket starts at Z3 */
+    const ssBarWidth = (SEG_FLEX.Z3 + SEG_FLEX.Z4) / totalFlex * 100;
 
     const barHTML = zones.map(z => {
       const flex      = SEG_FLEX[z.z];
@@ -525,16 +694,49 @@
       <div class="out-header">
         <div class="out-eyebrow">FTHR 5-Zone Method</div>
         <div class="out-title">Your HR Zones</div>
-        <div class="out-subtitle">FTHR ${fthr} bpm</div>
+        <div class="out-subtitle">FTHR ${fthr} bpm · ${STATUS_LABEL[status]}</div>
       </div>
 
-      <div class="zone-bar-wrap" style="padding-top:28px">
+      <div class="zone-bar-wrap" style="padding-top:28px;padding-bottom:32px">
         <div class="quality-label" style="left:${z3Start.toFixed(0)}%">Quality Zone</div>
         <div class="zone-bar">${barHTML}</div>
+        <div class="ss-bracket" style="left:${ssBarLeft.toFixed(1)}%;width:${ssBarWidth.toFixed(1)}%">
+          <div class="ss-bracket-line"></div>
+          <div class="ss-bracket-text">★ Sub-Threshold Sweet Spot · ${ssLo}–${ssHi} bpm</div>
+        </div>
       </div>
 
       <div class="zone-list">
         ${listHTML}
+      </div>
+
+      <div class="sweet-spot-card">
+        <div class="ss-card-inner">
+          <div class="ss-card-header">
+            <div>
+              <div class="ss-card-eyebrow">★ Sub-Threshold Sweet Spot</div>
+              <div class="ss-card-bpm">${ssLo}–${ssHi} <span class="ss-bpm-unit">bpm</span></div>
+            </div>
+            <div class="ss-pct-label">90–100% FTHR</div>
+          </div>
+          <div class="ss-mini-bar">
+            <div class="ss-mini-seg" style="background:#ca8a04;flex:4">
+              <span class="ss-seg-label">Upper Z3</span>
+              <span class="ss-seg-range">${ssZ3lo}–${ssZ3hi} bpm</span>
+              <span class="ss-seg-pct">90–94% FTHR</span>
+            </div>
+            <div class="ss-mini-seg" style="background:#c2410c;flex:5">
+              <span class="ss-seg-label">Low Z4</span>
+              <span class="ss-seg-range">${ssZ4lo}–${ssZ4hi} bpm</span>
+              <span class="ss-seg-pct">95–100% FTHR</span>
+            </div>
+          </div>
+          <div class="ss-desc">
+            Norwegian Singles quality sessions target this band — comfortably hard, sustainable, <strong>just below lactate threshold</strong>.
+            Start intervals in the yellow band (Upper Z3) and allow HR to drift into the orange band (Low Z4) only when fully warmed up.
+            Never consistently exceed <strong>${ssHi} bpm</strong> (your FTHR) at the end of final reps.
+          </div>
+        </div>
       </div>
 
       <div class="z4-note">
@@ -545,19 +747,19 @@
 
       <div class="derived-grid">
         <div class="derived-stat">
-          <div class="derived-label">Your FTHR</div>
-          <div class="derived-val">${fthr} <span style="font-size:14px;font-weight:600;color:#9ca3af">bpm</span></div>
-          <div class="derived-sub">Lactate threshold anchor — NS hard cap</div>
+          <div class="derived-label">Est. Max HR</div>
+          <div class="derived-val">${estHRmax} <span style="font-size:14px;font-weight:600;color:#5a3a44">bpm</span></div>
+          <div class="derived-sub">FTHR ÷ ${(HRMAX_RATIO[status] * 100).toFixed(0)}% · estimate ±5–10 bpm</div>
         </div>
         <div class="derived-stat">
           <div class="derived-label">Easy Run Ceiling</div>
-          <div class="derived-val">${easyCeil} <span style="font-size:14px;font-weight:600;color:#9ca3af">bpm</span></div>
-          <div class="derived-sub">~80% FTHR (≈ 70% HRmax) — stay below on all easy days</div>
+          <div class="derived-val">${easyCeil} <span style="font-size:14px;font-weight:600;color:#5a3a44">bpm</span></div>
+          <div class="derived-sub">70% × est. HRmax — stay below on all easy days</div>
         </div>
         <div class="derived-stat highlight">
           <div class="derived-label">Quality Target</div>
           <div class="derived-val">${qualLo}–${qualHi} <span style="font-size:14px;font-weight:600;color:#f43f5e">bpm</span></div>
-          <div class="derived-sub">Z3 Steady State (84–94% FTHR) — NS sweet spot</div>
+          <div class="derived-sub">Z3 Aerobic/Tempo (84–94% FTHR) — NS sweet spot</div>
         </div>
         <div class="derived-stat highlight">
           <div class="derived-label">Quality Hard Cap</div>
@@ -574,9 +776,9 @@
   /* ─────────────────────────────────────────
      COPY AS TEXT
   ───────────────────────────────────────── */
-  function buildZoneText({ fthr, zones, easyCeil, qualLo, qualHi }) {
+  function buildZoneText({ fthr, status, estHRmax, zones, easyCeil, qualLo, qualHi }) {
     const lines = [
-      `❤️ HR Zones — FTHR ${fthr} bpm`,
+      `❤️ HR Zones — FTHR ${fthr} bpm · ${STATUS_LABEL[status]}`,
       `FTHR 5-Zone Method (% of FTHR)`,
       '',
     ];
@@ -586,10 +788,10 @@
     });
     lines.push('');
     lines.push(`📊 Norwegian Singles Reference Values`);
-    lines.push(`FTHR: ${fthr} bpm — threshold anchor and NS hard cap`);
-    lines.push(`Easy run ceiling: ${easyCeil} bpm (~80% FTHR ≈ 70% HRmax)`);
-    lines.push(`Quality target: ${qualLo}–${qualHi} bpm (Z3 Steady State — NS sweet spot)`);
-    lines.push(`Quality hard cap: ${fthr} bpm — never consistently exceed at end of final rep`);
+    lines.push(`Est. Max HR: ~${estHRmax} bpm (FTHR ÷ ${(HRMAX_RATIO[status]*100).toFixed(0)}%, estimate ±5–10 bpm)`);
+    lines.push(`Easy run ceiling: ${easyCeil} bpm (70% × est. HRmax) — stay below on all easy days`);
+    lines.push(`Quality target: ${qualLo}–${qualHi} bpm (Z3 Aerobic/Tempo — NS sweet spot)`);
+    lines.push(`Quality hard cap: ${fthr} bpm (FTHR) — never consistently exceed at end of final rep`);
     lines.push('');
     lines.push(`⚠ Z4 (${Math.round(fthr * 0.95)}–${Math.round(fthr * 1.05)} bpm) straddles threshold.`);
     lines.push(`  Low Z4 (< ${fthr} bpm) = acceptable ceiling. High Z4 (> ${fthr} bpm) = avoid in NS.`);
@@ -627,6 +829,29 @@
     fthr = Math.max(80, Math.min(220, fthr + delta));
     document.getElementById('fthrVal').textContent = fthr;
   }
+
+  function setStatus(s) {
+    status = s;
+    document.querySelectorAll('#statusToggle .pill-btn').forEach((b, i) => {
+      b.classList.toggle('active', ['recreational','trained','highly'][i] === s);
+    });
+  }
+
+  function toggleStatusInfo(e) {
+    e.stopPropagation();
+    const popover = document.getElementById('statusInfoPopover');
+    const btn     = document.getElementById('statusInfoBtn');
+    const opening = popover.classList.contains('hidden');
+    popover.classList.toggle('hidden');
+    btn.classList.toggle('open', opening);
+  }
+
+  document.addEventListener('click', e => {
+    if (!e.target.closest('#statusInfoBtn') && !e.target.closest('#statusInfoPopover')) {
+      document.getElementById('statusInfoPopover').classList.add('hidden');
+      document.getElementById('statusInfoBtn').classList.remove('open');
+    }
+  });
 
   function showError(msg) {
     const el = document.getElementById('errorMsg');
