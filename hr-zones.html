@@ -9,8 +9,8 @@
 
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      background: #110d10;
-      color: #c9b8be;
+      background: #0c1220;
+      color: #b8cede;
       min-height: 100vh;
       padding: 0 0 64px;
     }
@@ -20,128 +20,128 @@
       display: flex; justify-content: center;
       gap: 6px; padding: 14px 16px;
       border-bottom: 1px solid #2a1820;
-      background: #0a0709;
+      background: #060c18;
     }
     .nav-link {
       font-size: 12px; font-weight: 700; letter-spacing: 0.8px;
       text-transform: uppercase; text-decoration: none;
       padding: 7px 16px; border-radius: 20px;
-      color: #6b525a; transition: all 0.15s;
+      color: #4a6a88; transition: all 0.15s;
     }
-    .nav-link:hover { color: #c9b8be; background: #1e1318; }
-    .nav-link.active { background: #e11d48; color: #fff; }
+    .nav-link:hover { color: #b8cede; background: #0e1828; }
+    .nav-link.active { background: #0ea5e9; color: #fff; }
 
     .container { max-width: 700px; margin: 0 auto; padding: 28px 16px 0; }
 
     /* ── Header ── */
     header { text-align: center; margin-bottom: 32px; }
-    header h1 { font-size: 26px; font-weight: 800; color: #f0e8ec; letter-spacing: -0.5px; }
-    header p  { font-size: 14px; color: #6b525a; margin-top: 5px; }
+    header h1 { font-size: 26px; font-weight: 800; color: #deeaf6; letter-spacing: -0.5px; }
+    header p  { font-size: 14px; color: #4a6a88; margin-top: 5px; }
     .badge {
       display: inline-block; margin-top: 10px;
       font-size: 11px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase;
-      background: #e11d48; color: #fff; padding: 4px 10px; border-radius: 20px;
+      background: #0ea5e9; color: #fff; padding: 4px 10px; border-radius: 20px;
     }
 
     /* ── Cards ── */
     .card {
-      background: #1c1519;
+      background: #111c2a;
       border-radius: 14px;
       padding: 24px;
       margin-bottom: 12px;
-      border: 1px solid #2e1f27;
+      border: 1px solid #1a2d42;
     }
     .card h2 {
       font-size: 11px; font-weight: 700;
       text-transform: uppercase; letter-spacing: 1px;
-      color: #5a3a44; margin-bottom: 18px;
+      color: #2e4a68; margin-bottom: 18px;
     }
 
     /* ── Form group ── */
     .form-group { display: flex; flex-direction: column; gap: 8px; }
-    .form-group label { font-size: 13px; font-weight: 600; color: #8a7278; }
-    .form-hint { font-size: 11px; color: #4a3840; margin-top: 4px; }
+    .form-group label { font-size: 13px; font-weight: 600; color: #5a7a98; }
+    .form-hint { font-size: 11px; color: #1c3858; margin-top: 4px; }
 
     /* ── Pill toggle ── */
     .pill-toggle {
-      display: flex; background: #0d090c;
+      display: flex; background: #080f1c;
       border-radius: 10px; padding: 4px; gap: 3px;
-      border: 1px solid #2e1f27;
+      border: 1px solid #1a2d42;
     }
     .pill-btn {
       flex: 1; padding: 8px 0;
       text-align: center; font-size: 12px; font-weight: 700;
       border-radius: 7px; border: none; background: transparent;
-      color: #5a3a44; cursor: pointer; transition: all 0.15s;
+      color: #2e4a68; cursor: pointer; transition: all 0.15s;
     }
-    .pill-btn.active { background: #e11d48; color: #fff; }
-    .pill-btn:hover:not(.active) { background: #2a1520; color: #f43f5e; }
+    .pill-btn.active { background: #0ea5e9; color: #fff; }
+    .pill-btn:hover:not(.active) { background: #0e2038; color: #38bdf8; }
 
     /* ── Info icon + popover ── */
     .info-btn {
       display: inline-flex; align-items: center; justify-content: center;
       width: 15px; height: 15px; border-radius: 50%;
-      background: transparent; border: 1px solid #4a3840;
-      color: #4a3840; font-size: 9px; font-weight: 800;
+      background: transparent; border: 1px solid #1c3858;
+      color: #1c3858; font-size: 9px; font-weight: 800;
       cursor: pointer; vertical-align: middle; margin-left: 5px;
       transition: all 0.15s; line-height: 1; padding: 0; font-style: italic;
     }
-    .info-btn:hover, .info-btn.open { background: #e11d48; border-color: #e11d48; color: #fff; }
+    .info-btn:hover, .info-btn.open { background: #0ea5e9; border-color: #0ea5e9; color: #fff; }
 
     .info-popover {
       margin-top: 8px; margin-bottom: 4px;
-      background: #0d090c; border: 1px solid #2e1f27;
+      background: #080f1c; border: 1px solid #1a2d42;
       border-radius: 10px; padding: 14px;
       animation: fadeIn 0.15s ease;
     }
     @keyframes fadeIn { from { opacity:0; transform:translateY(-4px); } to { opacity:1; transform:translateY(0); } }
     .info-popover-title {
       font-size: 10px; font-weight: 700; letter-spacing: 1px;
-      text-transform: uppercase; color: #5a3a44; margin-bottom: 10px;
+      text-transform: uppercase; color: #2e4a68; margin-bottom: 10px;
     }
     .info-row {
       display: flex; gap: 10px; align-items: flex-start; margin-bottom: 8px;
     }
     .info-row:last-of-type { margin-bottom: 0; }
     .info-tag {
-      font-size: 11px; font-weight: 700; color: #f0e8ec;
+      font-size: 11px; font-weight: 700; color: #deeaf6;
       white-space: nowrap; min-width: 88px;
     }
     .info-desc { font-size: 11px; color: #7a6268; line-height: 1.5; }
     .info-note {
-      margin-top: 10px; padding-top: 10px; border-top: 1px solid #1e1318;
-      font-size: 11px; color: #4a3840; font-style: italic; line-height: 1.5;
+      margin-top: 10px; padding-top: 10px; border-top: 1px solid #0e1828;
+      font-size: 11px; color: #1c3858; font-style: italic; line-height: 1.5;
     }
 
     /* ── Stepper ── */
     .stepper {
       display: flex; align-items: center;
-      background: #110d10; border: 1.5px solid #2e1f27;
+      background: #0c1220; border: 1.5px solid #1a2d42;
       border-radius: 10px; overflow: hidden;
       transition: border-color 0.15s;
     }
-    .stepper:focus-within { border-color: #e11d48; }
+    .stepper:focus-within { border-color: #0ea5e9; }
     .stepper-btn {
       width: 48px; height: 52px;
       background: transparent; border: none;
-      color: #5a3a44; font-size: 22px; cursor: pointer;
+      color: #2e4a68; font-size: 22px; cursor: pointer;
       display: flex; align-items: center; justify-content: center;
       transition: background 0.1s, color 0.1s;
     }
-    .stepper-btn:hover { background: #2a1520; color: #f43f5e; }
+    .stepper-btn:hover { background: #0e2038; color: #38bdf8; }
     .stepper-inner {
       flex: 1; display: flex; align-items: center; justify-content: center; gap: 6px;
     }
     .stepper-val {
-      font-size: 28px; font-weight: 800; color: #f0e8ec;
+      font-size: 28px; font-weight: 800; color: #deeaf6;
       min-width: 56px; text-align: center;
     }
-    .stepper-unit { font-size: 12px; font-weight: 600; color: #5a3a44; }
+    .stepper-unit { font-size: 12px; font-weight: 600; color: #2e4a68; }
 
     /* ── Button ── */
     .generate-btn {
       width: 100%; padding: 16px;
-      background: linear-gradient(135deg, #e11d48, #9f1239);
+      background: linear-gradient(135deg, #0ea5e9, #075985);
       color: #fff; border: none; border-radius: 12px;
       font-size: 16px; font-weight: 800;
       cursor: pointer; transition: opacity 0.15s, transform 0.1s;
@@ -160,19 +160,19 @@
 
     /* ── Output wrapper ── */
     .output-card {
-      background: #0d090c;
+      background: #080f1c;
       border-radius: 14px;
       padding: 28px 24px;
-      border: 1px solid #2e1f27;
+      border: 1px solid #1a2d42;
     }
 
     .out-header { text-align: center; margin-bottom: 28px; }
     .out-eyebrow {
       font-size: 11px; font-weight: 700; letter-spacing: 2px;
-      text-transform: uppercase; color: #5a3a44; margin-bottom: 6px;
+      text-transform: uppercase; color: #2e4a68; margin-bottom: 6px;
     }
-    .out-title { font-size: 20px; font-weight: 800; color: #f0e8ec; letter-spacing: -0.3px; }
-    .out-subtitle { font-size: 13px; color: #6b525a; margin-top: 4px; }
+    .out-title { font-size: 20px; font-weight: 800; color: #deeaf6; letter-spacing: -0.3px; }
+    .out-subtitle { font-size: 13px; color: #4a6a88; margin-top: 4px; }
 
     /* ── Zone bar ── */
     .zone-bar-wrap { margin-bottom: 8px; position: relative; }
@@ -180,7 +180,7 @@
     .quality-label {
       position: absolute; top: -22px;
       font-size: 10px; font-weight: 700; letter-spacing: 0.5px;
-      color: #f43f5e; text-transform: uppercase;
+      color: #38bdf8; text-transform: uppercase;
       display: flex; align-items: center; gap: 4px;
     }
     .quality-label::before { content: '★'; }
@@ -214,26 +214,26 @@
       display: grid; grid-template-columns: 10px 120px 1fr auto;
       gap: 12px; align-items: center;
       padding: 10px 14px;
-      border-radius: 9px; background: #1a1217;
-      border: 1px solid #2e1f27;
+      border-radius: 9px; background: #0d1a28;
+      border: 1px solid #1a2d42;
     }
     .zone-row.quality-zone-row {
-      background: #1f1018; border-color: #6b1530;
+      background: #091526; border-color: #0c3860;
     }
     .zone-dot {
       width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0;
     }
-    .zone-name { font-size: 13px; font-weight: 700; color: #f0e8ec; }
-    .zone-bpm  { font-size: 12px; color: #6b525a; margin-top: 1px; }
-    .zone-ns-note { font-size: 12px; color: #5a3a44; }
-    .zone-row.quality-zone-row .zone-ns-note { color: #f87171; }
+    .zone-name { font-size: 13px; font-weight: 700; color: #deeaf6; }
+    .zone-bpm  { font-size: 12px; color: #4a6a88; margin-top: 1px; }
+    .zone-ns-note { font-size: 12px; color: #2e4a68; }
+    .zone-row.quality-zone-row .zone-ns-note { color: #7dd3fc; }
     .ns-badge {
       font-size: 10px; font-weight: 700; padding: 3px 8px;
       border-radius: 5px; white-space: nowrap; letter-spacing: 0.3px;
       text-align: right;
     }
     .badge-easy    { background: rgba(34,197,94,0.15);  color: #4ade80; }
-    .badge-quality { background: rgba(244,63,94,0.18);  color: #f87171; }
+    .badge-quality { background: rgba(14,165,233,0.18);  color: #7dd3fc; }
     .badge-cap     { background: rgba(249,115,22,0.15); color: #fb923c; }
     .badge-off     { background: rgba(156,163,175,0.12);color: #6b7280; }
 
@@ -252,52 +252,52 @@
     .derived-grid {
       display: grid; grid-template-columns: 1fr 1fr 1fr;
       gap: 10px; margin-top: 20px; padding-top: 20px;
-      border-top: 1px solid #2e1f27;
+      border-top: 1px solid #1a2d42;
     }
     @media (max-width: 560px) { .derived-grid { grid-template-columns: 1fr 1fr; } }
     .derived-stat {
-      background: #1a1217; border: 1px solid #2e1f27;
+      background: #0d1a28; border: 1px solid #1a2d42;
       border-radius: 10px; padding: 14px;
     }
-    .derived-stat.highlight { background: #1f1018; border-color: #6b1530; }
+    .derived-stat.highlight { background: #091526; border-color: #0c3860; }
     .derived-label {
       font-size: 10px; font-weight: 700; letter-spacing: 1px;
-      text-transform: uppercase; color: #5a3a44; margin-bottom: 4px;
+      text-transform: uppercase; color: #2e4a68; margin-bottom: 4px;
     }
-    .derived-stat.highlight .derived-label { color: #7a3048; }
+    .derived-stat.highlight .derived-label { color: #0e4070; }
     .derived-val {
-      font-size: 22px; font-weight: 800; color: #f0e8ec;
+      font-size: 22px; font-weight: 800; color: #deeaf6;
     }
-    .derived-stat.highlight .derived-val { color: #f43f5e; }
-    .derived-sub { font-size: 11px; color: #4a3840; margin-top: 2px; }
+    .derived-stat.highlight .derived-val { color: #38bdf8; }
+    .derived-sub { font-size: 11px; color: #1c3858; margin-top: 2px; }
 
     /* ── Copy btn ── */
     .copy-btn {
       width: 100%; margin-top: 10px; padding: 12px;
-      background: transparent; color: #5a3a44;
-      border: 1.5px solid #2e1f27; border-radius: 10px;
+      background: transparent; color: #2e4a68;
+      border: 1.5px solid #1a2d42; border-radius: 10px;
       font-size: 13px; font-weight: 600; cursor: pointer;
       transition: all 0.15s; letter-spacing: 0.3px;
     }
-    .copy-btn:hover  { background: #1f1018; color: #f43f5e; border-color: #6b1530; }
+    .copy-btn:hover  { background: #091526; color: #38bdf8; border-color: #0c3860; }
     .copy-btn.copied { background: rgba(74,222,128,0.08); color: #4ade80; border-color: rgba(74,222,128,0.3); }
 
     /* ── Guidance (collapsible) ── */
     .guidance-section { margin-top: 10px; }
     details {
-      background: #1c1519; border: 1px solid #2e1f27;
+      background: #111c2a; border: 1px solid #1a2d42;
       border-radius: 12px; overflow: hidden;
       margin-bottom: 8px;
     }
     summary {
       padding: 16px 20px; font-size: 13px; font-weight: 700;
-      color: #c9b8be; cursor: pointer; list-style: none;
+      color: #b8cede; cursor: pointer; list-style: none;
       display: flex; align-items: center; justify-content: space-between;
       user-select: none;
     }
     summary::-webkit-details-marker { display: none; }
     summary::after {
-      content: '›'; font-size: 16px; color: #5a3a44;
+      content: '›'; font-size: 16px; color: #2e4a68;
       transition: transform 0.2s;
     }
     details[open] summary::after { transform: rotate(90deg); }
@@ -307,18 +307,18 @@
     .step { display: flex; gap: 12px; align-items: flex-start; }
     .step-num {
       width: 22px; height: 22px; border-radius: 50%;
-      background: #e11d48; color: #fff;
+      background: #0ea5e9; color: #fff;
       font-size: 11px; font-weight: 800;
       display: flex; align-items: center; justify-content: center;
       flex-shrink: 0; margin-top: 1px;
     }
-    .step-text { font-size: 13px; color: #9a8890; line-height: 1.5; }
-    .step-text strong { color: #f0e8ec; }
+    .step-text { font-size: 13px; color: #7090ac; line-height: 1.5; }
+    .step-text strong { color: #deeaf6; }
 
     .tip-box {
       margin-top: 12px; padding: 10px 14px;
-      background: #1f1018; border: 1px solid #6b1530;
-      border-radius: 8px; font-size: 12px; color: #f87171; line-height: 1.5;
+      background: #091526; border: 1px solid #0c3860;
+      border-radius: 8px; font-size: 12px; color: #7dd3fc; line-height: 1.5;
     }
     .tip-box strong { color: #fca5a5; }
 
@@ -326,13 +326,13 @@
     .retest-table th {
       text-align: left; font-size: 10px; font-weight: 700;
       text-transform: uppercase; letter-spacing: 0.5px;
-      color: #5a3a44; padding: 0 0 8px; border-bottom: 1px solid #2e1f27;
+      color: #2e4a68; padding: 0 0 8px; border-bottom: 1px solid #1a2d42;
     }
     .retest-table td {
-      font-size: 12px; color: #9a8890; padding: 8px 0;
-      border-bottom: 1px solid #1a1217; vertical-align: top;
+      font-size: 12px; color: #7090ac; padding: 8px 0;
+      border-bottom: 1px solid #0d1a28; vertical-align: top;
     }
-    .retest-table td:first-child { padding-right: 16px; color: #f0e8ec; font-weight: 600; width: 55%; }
+    .retest-table td:first-child { padding-right: 16px; color: #deeaf6; font-weight: 600; width: 55%; }
     .retest-table tr:last-child td { border-bottom: none; }
 
     /* ── Sweet spot bracket (below zone bar) ── */
@@ -356,13 +356,13 @@
     .ss-bracket-line::after  { right: 0; background: #f97316; }
     .ss-bracket-text {
       font-size: 9px; font-weight: 700; letter-spacing: 0.6px;
-      color: #c87d20; margin-top: 4px; white-space: nowrap; text-transform: uppercase;
+      color: #0284c7; margin-top: 4px; white-space: nowrap; text-transform: uppercase;
     }
 
     /* ── Sweet spot card ── */
     .sweet-spot-card {
       margin: 12px 0;
-      background: #17120f; border: 1px solid #3d2a14;
+      background: #060d1c; border: 1px solid #0c2840;
       border-radius: 12px; overflow: hidden; position: relative;
     }
     .sweet-spot-card::before {
@@ -376,7 +376,7 @@
     }
     .ss-card-eyebrow {
       font-size: 10px; font-weight: 700; letter-spacing: 1.5px;
-      text-transform: uppercase; color: #b45309; margin-bottom: 4px;
+      text-transform: uppercase; color: #0369a1; margin-bottom: 4px;
     }
     .ss-card-bpm {
       font-size: 22px; font-weight: 800;
@@ -386,8 +386,8 @@
     }
     .ss-bpm-unit { font-size: 13px; font-weight: 600; }
     .ss-pct-label {
-      font-size: 11px; font-weight: 700; color: #5a3a44;
-      background: #0d090c; border: 1px solid #2e1f27;
+      font-size: 11px; font-weight: 700; color: #2e4a68;
+      background: #080f1c; border: 1px solid #1a2d42;
       border-radius: 7px; padding: 5px 10px; white-space: nowrap; margin-top: 2px;
     }
     .ss-mini-bar {
@@ -403,10 +403,10 @@
     .ss-seg-range { font-size: 10px; font-weight: 600; color: rgba(255,255,255,0.65); margin-top: 3px; }
     .ss-seg-pct   { font-size: 9px; color: rgba(255,255,255,0.4); margin-top: 2px; }
     .ss-desc {
-      font-size: 12px; color: #6b525a; line-height: 1.65;
-      border-top: 1px solid #2a1a1f; padding-top: 12px; margin-top: 2px;
+      font-size: 12px; color: #4a6a88; line-height: 1.65;
+      border-top: 1px solid #0e1e32; padding-top: 12px; margin-top: 2px;
     }
-    .ss-desc strong { color: #c9b8be; }
+    .ss-desc strong { color: #b8cede; }
 
     .hidden { display: none; }
 
@@ -453,22 +453,22 @@
     <div class="form-group">
       <label>
         Training Status
-        <span style="font-weight:400;color:#4a3840">(for HRmax estimate)</span>
+        <span style="font-weight:400;color:#1c3858">(for HRmax estimate)</span>
         <button class="info-btn" id="statusInfoBtn" onclick="toggleStatusInfo(event)" aria-label="What does training status mean?">i</button>
       </label>
       <div class="info-popover hidden" id="statusInfoPopover">
         <div class="info-popover-title">Which status are you?</div>
         <div class="info-row">
           <div class="info-tag">Recreational</div>
-          <div class="info-desc">1–3 runs/week, mostly for fitness. No structured plan. FTHR is approximately <strong style="color:#c9b8be">85%</strong> of max HR.</div>
+          <div class="info-desc">1–3 runs/week, mostly for fitness. No structured plan. FTHR is approximately <strong style="color:#b8cede">85%</strong> of max HR.</div>
         </div>
         <div class="info-row">
           <div class="info-tag">Trained</div>
-          <div class="info-desc">4–5 runs/week with a training plan, racing occasionally. FTHR is approximately <strong style="color:#c9b8be">88%</strong> of max HR.</div>
+          <div class="info-desc">4–5 runs/week with a training plan, racing occasionally. FTHR is approximately <strong style="color:#b8cede">88%</strong> of max HR.</div>
         </div>
         <div class="info-row">
           <div class="info-tag">Elite</div>
-          <div class="info-desc">6+ runs/week, high volume, structured periodization. FTHR is approximately <strong style="color:#c9b8be">91%</strong> of max HR.</div>
+          <div class="info-desc">6+ runs/week, high volume, structured periodization. FTHR is approximately <strong style="color:#b8cede">91%</strong> of max HR.</div>
         </div>
         <div class="info-note">A higher ratio means your threshold is a larger fraction of your max — less headroom above it. When in doubt, choose <em>Trained</em>.</div>
       </div>
@@ -750,27 +750,27 @@
       <div class="derived-grid">
         <div class="derived-stat">
           <div class="derived-label">Computed FTHR</div>
-          <div class="derived-val">${fthr} <span style="font-size:14px;font-weight:600;color:#5a3a44">bpm</span></div>
+          <div class="derived-val">${fthr} <span style="font-size:14px;font-weight:600;color:#2e4a68">bpm</span></div>
           <div class="derived-sub">${avgHR} × 0.95 — your lactate threshold anchor</div>
         </div>
         <div class="derived-stat">
           <div class="derived-label">Est. Max HR</div>
-          <div class="derived-val">${estHRmax} <span style="font-size:14px;font-weight:600;color:#5a3a44">bpm</span></div>
+          <div class="derived-val">${estHRmax} <span style="font-size:14px;font-weight:600;color:#2e4a68">bpm</span></div>
           <div class="derived-sub">FTHR ÷ ${(HRMAX_RATIO[status] * 100).toFixed(0)}% · estimate ±5–10 bpm</div>
         </div>
         <div class="derived-stat">
           <div class="derived-label">Easy Run Ceiling</div>
-          <div class="derived-val">${easyCeil} <span style="font-size:14px;font-weight:600;color:#5a3a44">bpm</span></div>
+          <div class="derived-val">${easyCeil} <span style="font-size:14px;font-weight:600;color:#2e4a68">bpm</span></div>
           <div class="derived-sub">70% × est. HRmax — stay below on all easy days</div>
         </div>
         <div class="derived-stat highlight">
           <div class="derived-label">Quality Target</div>
-          <div class="derived-val">${qualLo}–${qualHi} <span style="font-size:14px;font-weight:600;color:#f43f5e">bpm</span></div>
+          <div class="derived-val">${qualLo}–${qualHi} <span style="font-size:14px;font-weight:600;color:#38bdf8">bpm</span></div>
           <div class="derived-sub">Z3 Aerobic/Tempo (84–94% FTHR) — NS sweet spot</div>
         </div>
         <div class="derived-stat highlight">
           <div class="derived-label">Quality Hard Cap</div>
-          <div class="derived-val">${fthr} <span style="font-size:14px;font-weight:600;color:#f43f5e">bpm</span></div>
+          <div class="derived-val">${fthr} <span style="font-size:14px;font-weight:600;color:#38bdf8">bpm</span></div>
           <div class="derived-sub">Your FTHR — never consistently exceed at end of final rep</div>
         </div>
       </div>
