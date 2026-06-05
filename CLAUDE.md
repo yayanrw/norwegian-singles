@@ -18,7 +18,7 @@ An adaptation of the elite Norwegian double-threshold model for recreational run
 
 ---
 
-## Core Principlescre
+## Core Principles
 
 ### 1. Sub-Threshold Focus (LT2)
 - All quality work occurs **just below the second lactate threshold (LT2)** — "sweetspot" = high Zone 3 / low Zone 4 in a 5-zone model.
@@ -308,3 +308,62 @@ HILL_SPRINT_DURATION = 10       // seconds (8–10s range)
 HILL_SPRINT_REPS_MIN = 6
 HILL_SPRINT_REPS_MAX = 10
 ```
+
+---
+
+## Strength Plan Feature (`strength.html`)
+
+A companion page to the run plan generator. Produces a **one-shot weekly strength plan** matched to the runner's current periodization block. Lower body + core only. User self-schedules sessions — no auto-placement into the run calendar.
+
+### Pages & Navigation
+- `index.html` — Run Plan (Norwegian Singles weekly plan generator)
+- `strength.html` — Strength Plan (block-matched strength generator)
+- Both pages share a top nav bar for switching between features.
+
+### Inputs
+| Input | Options |
+|---|---|
+| Training block | Base / Build / Peak / Taper |
+| Week in block | 1, 2, 3, … (drives week-number progression) |
+| Sessions per week | 1 / 2 / 3 |
+| Equipment | Bodyweight (always) · Dumbbells · Barbell · Full Gym (multi-select) |
+
+### Block → Strength Type Mapping (evidence-based)
+| Block | Focus | Sets × Reps | RPE | Rest | Source |
+|---|---|---|---|---|---|
+| **Base** | Anatomical adaptation / general strength | 3 × 12–15 | 6–7 | 45–60s | Beattie et al. 2017 |
+| **Build** | Maximal strength → running economy | 4 × 3–6 | 8–9 | 2–3 min | Støren et al. 2008; Blagrove et al. 2018 |
+| **Peak** | Power / plyometric conversion | 3 × 4–6 (explosive) | 7–8 | 2 min | Spurrs et al. 2003; Saunders et al. 2006 |
+| **Taper** | Neural maintenance, shed fatigue | 2 × 4–5 | 6–7 | 90s | Mujika & Padilla 2003 |
+
+**Isometrics** (Copenhagen plank, wall sit, calf holds) apply across all blocks — emphasis in Base for connective tissue. Cue: time-based holds (30–45s), RPE 6–7.
+
+**Core** (plank, dead bug, hollow hold, bird dog, etc.) included in every session — 3 × 30–45s for holds, 3 × 10–12 for dynamic exercises, RPE 7.
+
+### Week Progression (4-week microcycle, repeating)
+| Cycle week | Label | Action |
+|---|---|---|
+| 1 | Baseline | Establish technique, calibrate RPE |
+| 2 | Build | Add load on compounds if recovery allows |
+| 3 | Overload | Add load or +1 rep vs. week 2 |
+| 4 | Deload | −1 set, lighter load, absorb adaptation |
+
+### Exercise Library Structure
+Each exercise: `{ name, equip, cat, cue }`
+- `equip`: `'bodyweight'` | `'dumbbells'` | `'barbell'` | `'gym'`
+- `cat`: `'strength'` | `'power'` | `'iso'` | `'core'`
+
+Equipment filter hierarchy (cumulative): bodyweight < dumbbells < barbell < gym. Selecting "barbell" also unlocks all bodyweight and dumbbell exercises.
+
+### Session Composition per Block
+- **Base:** 3 strength + 1 iso + 2 core
+- **Build:** 4 strength (heavy compounds) + 1 iso + 1 core
+- **Peak:** 3 power/plyometric + 1 iso + 1 core
+- **Taper:** 2 strength + 1 power + 1 core
+
+Sessions rotate through the exercise pool to avoid repetition across Session 1 / 2 / 3.
+
+### Scheduling Rules (Norwegian Singles compatibility)
+- Place strength sessions on **easy run days only** — never on quality session days or the day before.
+- Allow **48h** between a heavy (Build) session and the next quality run.
+- Taper sessions: perform **5–7 days before race** for neuromuscular freshness.
