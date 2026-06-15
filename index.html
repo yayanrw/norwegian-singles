@@ -362,6 +362,14 @@
           <span class="slider-val" id="longRunPctVal">25%</span>
         </div>
       </div>
+      <div class="slider-group" style="margin-top:14px">
+        <label>Quality Sessions — % of Weekly Volume</label>
+        <div class="slider-row">
+          <input type="range" id="qualityPct" min="15" max="25" value="20" step="1"
+                 oninput="document.getElementById('qualityPctVal').textContent = this.value + '%'">
+          <span class="slider-val" id="qualityPctVal">20%</span>
+        </div>
+      </div>
     </div>
     <div class="toggle-row">
       <div class="toggle-text">
@@ -604,8 +612,9 @@
     const numQuality = parseInt(document.getElementById('numQuality').value);
     const hasRestDay = document.getElementById('hasRestDay').checked;
     const doubleEasy = document.getElementById('doubleEasy').checked;
-    const longRunPct = parseInt(document.getElementById('longRunPct').value) / 100;
-    const race       = document.getElementById('raceDistance').value;
+    const longRunPct  = parseInt(document.getElementById('longRunPct').value) / 100;
+    const qualityPct  = parseInt(document.getElementById('qualityPct').value) / 100;
+    const race        = document.getElementById('raceDistance').value;
 
     if (isNaN(weeklyKm) || weeklyKm < 20) {
       showError('Enter a valid weekly volume (min 20 km).'); return;
@@ -637,7 +646,7 @@
 
     // Pick best-fitting interval formats across all sessions simultaneously,
     // minimising deviation from the 25% quality target.
-    const preWorkouts = selectAllWorkouts(weeklyKm * 0.25, race, numQuality);
+    const preWorkouts = selectAllWorkouts(weeklyKm * qualityPct, race, numQuality);
     const actualQualityKm  = parseFloat(preWorkouts.reduce((s, w) => s + w.totalKm, 0).toFixed(1));
     const wuCdTotal        = parseFloat(((WARMUP_KM + COOLDOWN_KM) * numQuality).toFixed(1));
     const easyDays         = countOf('easy');
@@ -695,7 +704,7 @@
 
     const weekStart  = document.getElementById('weekStart').value || getNextMonday();
     const weekRange  = getWeekRange(weekStart);
-    lastPlan = { weeklyKm, numQuality, race, longRunKm, longRunPct, actualQualityKm, allEasyKm, dayPlans, showVolumeWarning, showLongRunWarning, weekRange };
+    lastPlan = { weeklyKm, numQuality, race, longRunKm, longRunPct, qualityPct, actualQualityKm, allEasyKm, dayPlans, showVolumeWarning, showLongRunWarning, weekRange };
     renderOutput(lastPlan);
   }
 
