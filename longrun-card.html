@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Long Run Card — Norwegian Singles</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #0b1120;
+      color: #8daabe;
+      min-height: 100vh;
+      padding: 0 0 64px;
+    }
+
+    /* ── Nav ── */
+    .site-nav {
+      display: flex; justify-content: center;
+      gap: 6px; padding: 14px 16px;
+      border-bottom: 1px solid #0f1f33;
+      background: #070e1a;
+    }
+    .nav-link {
+      font-size: 12px; font-weight: 700; letter-spacing: 0.8px;
+      text-transform: uppercase; text-decoration: none;
+      padding: 7px 16px; border-radius: 20px;
+      color: #2d4a63; transition: all 0.15s;
+    }
+    .nav-link:hover { color: #5d84a0; background: #101c2e; }
+    .nav-link.active { background: #0ea5e9; color: #0b1120; }
+
+    .container {
+      max-width: 700px; margin: 0 auto; padding: 32px 16px 0;
+    }
+
+    header { text-align: center; margin-bottom: 28px; }
+    header h1 { font-size: 22px; font-weight: 800; color: #e2eef8; letter-spacing: -0.5px; }
+    header p  { font-size: 13px; color: #4a6a85; margin-top: 5px; }
+
+    .print-btn {
+      display: block; width: fit-content;
+      margin: 0 auto 28px;
+      padding: 10px 24px;
+      background: linear-gradient(135deg, #0ea5e9, #0369a1);
+      color: #e2eef8; border: none; border-radius: 20px;
+      font-size: 13px; font-weight: 700; letter-spacing: 0.5px;
+      cursor: pointer; text-transform: uppercase;
+      transition: opacity 0.15s;
+    }
+    .print-btn:hover { opacity: 0.85; }
+
+    /* ── Card ── */
+    .card {
+      background: #101c2e;
+      border-radius: 14px;
+      padding: 22px 24px;
+      margin-bottom: 14px;
+      border: 1px solid #172236;
+    }
+
+    .card-header {
+      display: flex; align-items: center; gap: 10px;
+      margin-bottom: 16px; padding-bottom: 12px;
+      border-bottom: 1px solid #172236;
+    }
+    .card-icon {
+      font-size: 20px; line-height: 1;
+    }
+    .card-title {
+      font-size: 13px; font-weight: 800;
+      text-transform: uppercase; letter-spacing: 1.2px;
+    }
+    .card-title.pre    { color: #fb923c; }
+    .card-title.during { color: #38bdf8; }
+    .card-title.post   { color: #4ade80; }
+    .card-title.warn   { color: #f87171; }
+    .card-timing {
+      margin-left: auto;
+      font-size: 11px; font-weight: 700;
+      color: #2d4a63; letter-spacing: 0.5px;
+    }
+
+    .item-list { display: flex; flex-direction: column; gap: 10px; }
+
+    .item {
+      display: grid;
+      grid-template-columns: 20px 1fr;
+      gap: 10px; align-items: start;
+    }
+    .item-dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      margin-top: 5px;
+      flex-shrink: 0;
+    }
+    .pre    .item-dot { background: #fb923c; }
+    .during .item-dot { background: #38bdf8; }
+    .post   .item-dot { background: #4ade80; }
+    .warn   .item-dot { background: #f87171; }
+
+    .item-body {}
+    .item-main {
+      font-size: 14px; font-weight: 700;
+      color: #e2eef8; line-height: 1.4;
+    }
+    .item-sub {
+      font-size: 12px; color: #4a6a85;
+      margin-top: 2px; line-height: 1.5;
+    }
+
+    .tag {
+      display: inline-block;
+      font-size: 10px; font-weight: 700;
+      padding: 2px 7px; border-radius: 4px;
+      letter-spacing: 0.5px; text-transform: uppercase;
+      vertical-align: middle; margin-left: 5px;
+    }
+    .tag-sodium  { background: rgba(251,146,60,0.15); color: #fb923c; }
+    .tag-fuel    { background: rgba(74,222,128,0.12); color: #4ade80; }
+    .tag-hydrate { background: rgba(56,189,248,0.12); color: #38bdf8; }
+    .tag-stop    { background: rgba(248,113,113,0.12); color: #f87171; }
+
+    .divider {
+      height: 1px; background: #172236;
+      margin: 10px 0;
+    }
+
+    /* ── PRINT ── */
+    @media print {
+      @page {
+        size: A4;
+        margin: 14mm 14mm 14mm 14mm;
+      }
+
+      body {
+        background: #fff !important;
+        color: #1a1a1a !important;
+        padding: 0 !important;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
+
+      .site-nav, .print-btn, header { display: none !important; }
+
+      .container {
+        max-width: 100% !important;
+        padding: 0 !important;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+      }
+
+      .card {
+        background: #f8fafc !important;
+        border: 1.5px solid #cbd5e1 !important;
+        border-radius: 10px !important;
+        padding: 14px 16px !important;
+        margin-bottom: 0 !important;
+        page-break-inside: avoid;
+      }
+
+      .card-header {
+        border-bottom-color: #e2e8f0 !important;
+        margin-bottom: 12px !important;
+        padding-bottom: 8px !important;
+      }
+
+      .card-title { font-size: 11px !important; }
+      .card-title.pre    { color: #c2410c !important; }
+      .card-title.during { color: #0369a1 !important; }
+      .card-title.post   { color: #15803d !important; }
+      .card-title.warn   { color: #dc2626 !important; }
+
+      .card-timing { color: #94a3b8 !important; }
+
+      .item-main { color: #0f172a !important; font-size: 13px !important; }
+      .item-sub  { color: #64748b !important; font-size: 11px !important; }
+
+      .item-dot { box-shadow: none !important; }
+      .pre    .item-dot { background: #ea580c !important; }
+      .during .item-dot { background: #0284c7 !important; }
+      .post   .item-dot { background: #16a34a !important; }
+      .warn   .item-dot { background: #dc2626 !important; }
+
+      .tag-sodium  { background: #fff7ed !important; color: #c2410c !important; border: 1px solid #fed7aa; }
+      .tag-fuel    { background: #f0fdf4 !important; color: #15803d !important; border: 1px solid #bbf7d0; }
+      .tag-hydrate { background: #f0f9ff !important; color: #0369a1 !important; border: 1px solid #bae6fd; }
+      .tag-stop    { background: #fef2f2 !important; color: #dc2626 !important; border: 1px solid #fecaca; }
+
+      .divider { background: #e2e8f0 !important; }
+
+      .card-icon { font-size: 16px !important; }
+
+      .item-list { gap: 8px !important; }
+    }
+  </style>
+</head>
+<body>
+
+<nav class="site-nav">
+  <a href="index.html" class="nav-link">Run Plan</a>
+  <a href="strength.html" class="nav-link">Strength Plan</a>
+  <a href="hr-zones.html" class="nav-link">HR Zones</a>
+  <a href="longrun-card.html" class="nav-link active">Long Run Card</a>
+</nav>
+
+<div class="container">
+
+  <header>
+    <h1>Long Run Field Card</h1>
+    <p>Pre · During · Post — Norwegian Singles</p>
+  </header>
+
+  <button class="print-btn" onclick="window.print()">Print Card</button>
+
+  <!-- PRE -->
+  <div class="card">
+    <div class="card-header">
+      <span class="card-icon">☀️</span>
+      <span class="card-title pre">Pre-Run</span>
+      <span class="card-timing">2–3 h before</span>
+    </div>
+    <div class="item-list pre">
+
+      <div class="item">
+        <div class="item-dot"></div>
+        <div class="item-body">
+          <div class="item-main">Eat a proper carb meal <span class="tag tag-fuel">Fuel</span></div>
+          <div class="item-sub">Rice + protein, bread, banana — avoid high fat/fibre</div>
+        </div>
+      </div>
+
+      <div class="item">
+        <div class="item-dot"></div>
+        <div class="item-body">
+          <div class="item-main">500 ml water + electrolytes <span class="tag tag-hydrate">Hydrate</span></div>
+          <div class="item-sub">Don't just drink plain water — include sodium</div>
+        </div>
+      </div>
+
+      <div class="item">
+        <div class="item-dot"></div>
+        <div class="item-body">
+          <div class="item-main">Pack fuel &amp; salt for the run <span class="tag tag-sodium">Sodium</span></div>
+          <div class="item-sub">Salt tabs / electrolyte sachets + gel or dates</div>
+        </div>
+      </div>
+
+      <div class="divider"></div>
+
+      <div class="item">
+        <div class="item-dot"></div>
+        <div class="item-body">
+          <div class="item-main">Run early morning — before 7 am</div>
+          <div class="item-sub">Avoid afternoon heat in tropical climate (30°C+)</div>
+        </div>
+      </div>
+
+      <div class="item">
+        <div class="item-dot"></div>
+        <div class="item-body">
+          <div class="item-main">Start pace conservatively</div>
+          <div class="item-sub">Target 8:30–9:00 /km on hilly course — not 6:30</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- DURING -->
+  <div class="card">
+    <div class="card-header">
+      <span class="card-icon">🏃</span>
+      <span class="card-title during">During Run</span>
+      <span class="card-timing">Every 30–40 min</span>
+    </div>
+    <div class="item-list during">
+
+      <div class="item">
+        <div class="item-dot"></div>
+        <div class="item-body">
+          <div class="item-main">Take electrolytes every 30–40 min <span class="tag tag-sodium">Sodium</span></div>
+          <div class="item-sub">Salt tab or electrolyte drink — especially on hot days</div>
+        </div>
+      </div>
+
+      <div class="item">
+        <div class="item-dot"></div>
+        <div class="item-body">
+          <div class="item-main">30–40 g carbs per hour <span class="tag tag-fuel">Fuel</span></div>
+          <div class="item-sub">Gel, banana, dates — start at 30 min, don't wait</div>
+        </div>
+      </div>
+
+      <div class="item">
+        <div class="item-dot"></div>
+        <div class="item-body">
+          <div class="item-main">Drink before thirsty <span class="tag tag-hydrate">Hydrate</span></div>
+          <div class="item-sub">150–200 ml every 20 min in heat</div>
+        </div>
+      </div>
+
+      <div class="divider"></div>
+
+      <div class="item">
+        <div class="item-dot"></div>
+        <div class="item-body">
+          <div class="item-main">Keep HR below 70% max</div>
+          <div class="item-sub">Walk hills if needed — easy pace is the goal</div>
+        </div>
+      </div>
+
+      <div class="item">
+        <div class="item-dot"></div>
+        <div class="item-body">
+          <div class="item-main">Check cadence drops</div>
+          <div class="item-sub">Below 160 spm = fatigue signal, ease off pace</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- POST -->
+  <div class="card">
+    <div class="card-header">
+      <span class="card-icon">✅</span>
+      <span class="card-title post">Post-Run</span>
+      <span class="card-timing">Within 30–60 min</span>
+    </div>
+    <div class="item-list post">
+
+      <div class="item">
+        <div class="item-dot"></div>
+        <div class="item-body">
+          <div class="item-main">Rehydrate with electrolytes first <span class="tag tag-sodium">Sodium</span></div>
+          <div class="item-sub">500–750 ml electrolyte drink — not plain water alone</div>
+        </div>
+      </div>
+
+      <div class="item">
+        <div class="item-dot"></div>
+        <div class="item-body">
+          <div class="item-main">Eat within 30 min <span class="tag tag-fuel">Fuel</span></div>
+          <div class="item-sub">Carbs + protein — rice &amp; egg, banana &amp; milk</div>
+        </div>
+      </div>
+
+      <div class="item">
+        <div class="item-dot"></div>
+        <div class="item-body">
+          <div class="item-main">Continue drinking through the day <span class="tag tag-hydrate">Hydrate</span></div>
+          <div class="item-sub">Urine should be pale yellow — dark = still dehydrated</div>
+        </div>
+      </div>
+
+      <div class="divider"></div>
+
+      <div class="item">
+        <div class="item-dot"></div>
+        <div class="item-body">
+          <div class="item-main">No quality session next 24–48 h</div>
+          <div class="item-sub">Long run is your stress — full recovery before next Q</div>
+        </div>
+      </div>
+
+      <div class="item">
+        <div class="item-dot"></div>
+        <div class="item-body">
+          <div class="item-main">Log HR, pace &amp; how you felt</div>
+          <div class="item-sub">Flag any tingling, dizziness or nausea for next plan</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- STOP SIGNS -->
+  <div class="card">
+    <div class="card-header">
+      <span class="card-icon">🚨</span>
+      <span class="card-title warn">Stop Immediately If...</span>
+    </div>
+    <div class="item-list warn">
+
+      <div class="item">
+        <div class="item-dot"></div>
+        <div class="item-body">
+          <div class="item-main">Tingling spreads to face or feet <span class="tag tag-stop">Stop</span></div>
+          <div class="item-sub">Sit down · take salt + sugar + water now</div>
+        </div>
+      </div>
+
+      <div class="item">
+        <div class="item-dot"></div>
+        <div class="item-body">
+          <div class="item-main">Vision darkens or tunnels <span class="tag tag-stop">Stop</span></div>
+          <div class="item-sub">Lie down, legs elevated · call someone if alone</div>
+        </div>
+      </div>
+
+      <div class="item">
+        <div class="item-dot"></div>
+        <div class="item-body">
+          <div class="item-main">Nausea + dizziness together <span class="tag tag-stop">Stop</span></div>
+          <div class="item-sub">Classic heat exhaustion — shade, fluids, rest</div>
+        </div>
+      </div>
+
+      <div class="item">
+        <div class="item-dot"></div>
+        <div class="item-body">
+          <div class="item-main">Confusion or can't think clearly <span class="tag tag-stop">Stop</span></div>
+          <div class="item-sub">Heat stroke risk — seek help immediately</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+
+</body>
+</html>
