@@ -225,6 +225,15 @@
       font-size: 11px; color: #1e3a52;
       margin-top: 2px;
     }
+    .row-session-label {
+      font-weight: 700; color: #2d6a8a;
+      font-size: 10px; text-transform: uppercase;
+      letter-spacing: 0.06em; margin-top: 4px;
+    }
+    .row-session-divider {
+      border: none; border-top: 1px dashed #172236;
+      margin: 7px 0 4px;
+    }
 
     /* ── Notes ── */
     .out-notes {
@@ -283,9 +292,10 @@
 <body>
 <nav class="site-nav">
   <a href="index.html" class="nav-link active">Run Plan</a>
-  <a href="strength.html" class="nav-link">Strength Plan</a>
+  <a href="strength.html" class="nav-link">Strength</a>
   <a href="hr-zones.html" class="nav-link">HR Zones</a>
-  <a href="longrun-card.html" class="nav-link">Long Run Card</a>
+  <a href="longrun-card.html" class="nav-link">Long Run</a>
+  <a href="training-plan.html" class="nav-link">Training Plan</a>
 </nav>
 <div class="container">
 
@@ -379,6 +389,26 @@
       </div>
       <label class="toggle">
         <input type="checkbox" id="doubleEasy">
+        <span class="toggle-slider"></span>
+      </label>
+    </div>
+    <div class="toggle-row">
+      <div class="toggle-text">
+        <div class="toggle-label">Double Sub-Threshold on Quality Days</div>
+        <div class="toggle-desc">Splits each quality day into AM + PM sessions — mirrors elite Norwegian double-threshold</div>
+      </div>
+      <label class="toggle">
+        <input type="checkbox" id="doubleQuality">
+        <span class="toggle-slider"></span>
+      </label>
+    </div>
+    <div class="toggle-row">
+      <div class="toggle-text">
+        <div class="toggle-label">Back-to-Back Long Runs</div>
+        <div class="toggle-desc">Split long run volume across 2 days (60% / 40%) — marathon &amp; ultra focus</div>
+      </div>
+      <label class="toggle">
+        <input type="checkbox" id="backToBack" onchange="onSettingsChange()">
         <span class="toggle-slider"></span>
       </label>
     </div>
@@ -508,9 +538,11 @@
   function updateHint() {
     const n = document.getElementById('numQuality').value;
     const hasRest = document.getElementById('hasRestDay').checked;
+    const b2b = document.getElementById('backToBack').checked;
     const restPart = hasRest ? ' · <strong>1 Rest</strong>' : '';
+    const lrPart = b2b ? '<strong>2 Long Runs</strong>' : '<strong>1 Long Run</strong>';
     document.getElementById('assignHint').innerHTML =
-      `Need: <strong>${n} Quality</strong> · <strong>1 Long Run</strong>${restPart} · remaining days = Easy`;
+      `Need: <strong>${n} Quality</strong> · ${lrPart}${restPart} · remaining days = Easy`;
   }
 
   function onSettingsChange() {
@@ -524,6 +556,16 @@
     grid._saved = saved;
     syncRestOptions();
     updateHint();
+
+    // Adjust long run % slider range for back-to-back mode
+    const b2b    = document.getElementById('backToBack').checked;
+    const slider = document.getElementById('longRunPct');
+    const valEl  = document.getElementById('longRunPctVal');
+    slider.max = b2b ? 50 : 30;
+    if (!b2b && parseInt(slider.value) > 30) {
+      slider.value = 30;
+      valEl.textContent = '30%';
+    }
   }
 
   /* ─────────────────────────────────────────
@@ -612,7 +654,9 @@
     const weeklyKm   = parseFloat(document.getElementById('weeklyKm').value);
     const numQuality = parseInt(document.getElementById('numQuality').value);
     const hasRestDay = document.getElementById('hasRestDay').checked;
-    const doubleEasy = document.getElementById('doubleEasy').checked;
+    const doubleEasy    = document.getElementById('doubleEasy').checked;
+    const doubleQuality = document.getElementById('doubleQuality').checked;
+    const backToBack    = document.getElementById('backToBack').checked;
     const longRunPct  = parseInt(document.getElementById('longRunPct').value) / 100;
     const qualityPct  = parseInt(document.getElementById('qualityPct').value) / 100;
     const race        = document.getElementById('raceDistance').value;
@@ -632,8 +676,9 @@
     if (qCount !== numQuality) {
       showError(`Assign exactly ${numQuality} Quality day(s). Currently: ${qCount}.`); return;
     }
-    if (lrCount !== 1) {
-      showError(`Assign exactly 1 Long Run day. Currently: ${lrCount}.`); return;
+    const expectedLR = backToBack ? 2 : 1;
+    if (lrCount !== expectedLR) {
+      showError(`Assign exactly ${expectedLR} Long Run day(s). Currently: ${lrCount}.`); return;
     }
     if (hasRestDay && rCount !== 1) {
       showError(`You enabled a rest day — assign exactly 1 Rest day. Currently: ${rCount}.`); return;
@@ -644,30 +689,56 @@
 
     // ── Mileage split ──
     const longRunKm = parseFloat((weeklyKm * longRunPct).toFixed(1));
+    const lr1Km = backToBack ? parseFloat((longRunKm * 0.6).toFixed(1)) : longRunKm;
+    const lr2Km = backToBack ? parseFloat((longRunKm - longRunKm * 0.6).toFixed(1)) : longRunKm;
+
+    let b2bNonConsecutive = false;
+    if (backToBack) {
+      const lrIndices = DAYS.map((d, i) => assign[i] === 'longrun' ? i : -1).filter(i => i >= 0);
+      b2bNonConsecutive = lrIndices[1] - lrIndices[0] !== 1;
+    }
 
     // Pick best-fitting interval formats across all sessions simultaneously,
     // minimising deviation from the 25% quality target.
-    const preWorkouts = selectAllWorkouts(weeklyKm * qualityPct, race, numQuality);
+    const totalSessions    = doubleQuality ? numQuality * 2 : numQuality;
+    const preWorkouts      = selectAllWorkouts(weeklyKm * qualityPct, race, totalSessions);
     const actualQualityKm  = parseFloat(preWorkouts.reduce((s, w) => s + w.totalKm, 0).toFixed(1));
-    const wuCdTotal        = parseFloat(((WARMUP_KM + COOLDOWN_KM) * numQuality).toFixed(1));
+    const wuCdTotal        = parseFloat(((WARMUP_KM + COOLDOWN_KM) * totalSessions).toFixed(1));
     const easyDays         = countOf('easy');
     const easyTotalKm      = parseFloat((weeklyKm - longRunKm - actualQualityKm - wuCdTotal).toFixed(1));
     const easyPerDayKm     = easyDays > 0 ? parseFloat((easyTotalKm / easyDays).toFixed(1)) : 0;
 
     // ── Build day plans ──
     let qIdx = 0;
+    let lrIdx = 0;
     const dayPlans = DAYS.map((d, i) => {
       const type = assign[i];
       const label = DAY_SHORT[d];
       let main, sub, meta;
 
       if (type === 'quality') {
+        if (doubleQuality) {
+          const wAM = preWorkouts[qIdx++];
+          const wPM = preWorkouts[qIdx++];
+          const totalDay = parseFloat((WARMUP_KM + wAM.totalKm + COOLDOWN_KM + WARMUP_KM + wPM.totalKm + COOLDOWN_KM).toFixed(1));
+          return { label, type,
+            doubleSession: true,
+            amWarmup:   `${WARMUP_KM}km warm-up (easy)`,
+            amMain:     `${wAM.reps} × ${wAM.label}`,
+            amSub:      `@ ${wAM.pace}  ·  ${wAM.rest} rest`,
+            amCooldown: `${COOLDOWN_KM}km cool-down (easy)`,
+            pmWarmup:   `${WARMUP_KM}km warm-up (easy)`,
+            pmMain:     `${wPM.reps} × ${wPM.label}`,
+            pmSub:      `@ ${wPM.pace}  ·  ${wPM.rest} rest`,
+            pmCooldown: `${COOLDOWN_KM}km cool-down (easy)`,
+            meta: `~${wAM.totalKm}km + ~${wPM.totalKm}km intervals  ·  ~${totalDay}km total day`,
+          };
+        }
         const w        = preWorkouts[qIdx++];
         const totalDay = parseFloat((WARMUP_KM + w.totalKm + COOLDOWN_KM).toFixed(1));
         main     = `${w.reps} × ${w.label}`;
         sub      = `@ ${w.pace}  ·  ${w.rest} rest`;
         meta     = `~${w.totalKm}km intervals  ·  ~${totalDay}km total day`;
-        // attach warm-up / cool-down to be rendered separately
         return { label, type,
           warmup:   `${WARMUP_KM}km warm-up (easy)`,
           main, sub,
@@ -686,8 +757,18 @@
           sub  = 'Below 70% Max HR';
         }
       } else if (type === 'longrun') {
-        main = `${fmt(longRunKm)}km long run`;
-        sub  = `Easy pace · Below 70% Max HR · ${Math.round(longRunPct * 100)}% of weekly volume`;
+        if (backToBack) {
+          const km = lrIdx === 0 ? lr1Km : lr2Km;
+          const dayLabel = lrIdx === 0 ? 'Long Run — Day 1' : 'Long Run — Day 2 (tired legs)';
+          main = `${fmt(km)}km ${dayLabel}`;
+          sub  = lrIdx === 0
+            ? `Easy pace · Below 70% Max HR · ${Math.round(longRunPct * 100)}% total volume (split 60/40)`
+            : `Easy pace · Below 70% Max HR · simulate race fatigue`;
+          lrIdx++;
+        } else {
+          main = `${fmt(longRunKm)}km long run`;
+          sub  = `Easy pace · Below 70% Max HR · ${Math.round(longRunPct * 100)}% of weekly volume`;
+        }
       } else {
         main = 'Rest day';
         sub  = 'Full recovery';
@@ -705,21 +786,43 @@
 
     const weekStart  = document.getElementById('weekStart').value || getNextMonday();
     const weekRange  = getWeekRange(weekStart);
-    lastPlan = { weeklyKm, numQuality, race, longRunKm, longRunPct, qualityPct, actualQualityKm, allEasyKm, dayPlans, showVolumeWarning, showLongRunWarning, weekRange };
+    lastPlan = { weeklyKm, numQuality, doubleQuality, backToBack, b2bNonConsecutive, race, longRunKm, lr1Km, lr2Km, longRunPct, qualityPct, actualQualityKm, allEasyKm, dayPlans, showVolumeWarning, showLongRunWarning, weekRange };
     renderOutput(lastPlan);
   }
 
   /* ─────────────────────────────────────────
      RENDER OUTPUT
   ───────────────────────────────────────── */
-  function renderOutput({ weeklyKm, numQuality, race, longRunKm, longRunPct, actualQualityKm, allEasyKm, dayPlans, showVolumeWarning, showLongRunWarning, weekRange }) {
+  function renderOutput({ weeklyKm, numQuality, doubleQuality, backToBack, b2bNonConsecutive, race, longRunKm, longRunPct, actualQualityKm, allEasyKm, dayPlans, showVolumeWarning, showLongRunWarning, weekRange }) {
     const qPct  = Math.round((actualQualityKm / weeklyKm) * 100);
     const ePct  = Math.round((allEasyKm       / weeklyKm) * 100);
     const lrPct = Math.round(longRunPct * 100);
 
     const typeLabel = { quality:'QUALITY', easy:'EASY', longrun:'LONG RUN', rest:'REST' };
 
-    const rowsHTML = dayPlans.map(p => `
+    const rowsHTML = dayPlans.map(p => {
+      if (p.doubleSession) {
+        return `
+      <div class="plan-row">
+        <span class="row-day">${p.label}</span>
+        <span class="row-badge badge-quality">QUALITY ×2</span>
+        <div class="row-body">
+          <div class="row-session-label">AM Session</div>
+          <div class="row-sub">${p.amWarmup}</div>
+          <div class="row-main">${p.amMain}</div>
+          <div class="row-sub">${p.amSub}</div>
+          <div class="row-sub">${p.amCooldown}</div>
+          <hr class="row-session-divider">
+          <div class="row-session-label">PM Session</div>
+          <div class="row-sub">${p.pmWarmup}</div>
+          <div class="row-main">${p.pmMain}</div>
+          <div class="row-sub">${p.pmSub}</div>
+          <div class="row-sub">${p.pmCooldown}</div>
+          <div class="row-meta">${p.meta}</div>
+        </div>
+      </div>`;
+      }
+      return `
       <div class="plan-row">
         <span class="row-day">${p.label}</span>
         <span class="row-badge badge-${p.type}">${typeLabel[p.type]}</span>
@@ -730,8 +833,8 @@
           ${p.cooldown ? `<div class="row-sub">${p.cooldown}</div>` : ''}
           ${p.meta     ? `<div class="row-meta">${p.meta}</div>`    : ''}
         </div>
-      </div>
-    `).join('');
+      </div>`;
+    }).join('');
 
     const ultraNote = race === 'ultra'
       ? '<div class="note">Ultra / Trail: prefer hill terrain for quality sessions where possible</div>'
@@ -740,7 +843,7 @@
     document.getElementById('outputCard').innerHTML = `
       <div class="out-header">
         <div class="out-eyebrow">Norwegian Singles · ${weekRange}</div>
-        <div class="out-title">${weeklyKm}km Week · ${RACE_LABELS[race]} · ${numQuality}× Quality</div>
+        <div class="out-title">${weeklyKm}km Week · ${RACE_LABELS[race]} · ${numQuality}× Quality${doubleQuality ? ' (AM+PM)' : ''}</div>
         <div class="out-pills">
           <span class="pill pill-quality">Quality ${qPct}% · ${fmt(actualQualityKm)}km</span>
           <span class="pill pill-longrun">Long Run ${lrPct}% · ${fmt(longRunKm)}km</span>
@@ -758,6 +861,8 @@
         <div class="note">Race or 5k time trial every 4–8 weeks to update target paces</div>
         <div class="note">Allow 4–8 weeks to adapt; significant breakthroughs typically after 3–6 months</div>
         ${ultraNote}
+        ${backToBack ? '<div class="note">Back-to-back long runs: Day 2 is intentionally shorter on pre-fatigued legs — keep both days easy pace</div>' : ''}
+        ${b2bNonConsecutive ? '<div class="note note-warn">B2B long runs work best on consecutive days — check your day assignments</div>' : ''}
         ${showVolumeWarning ? '<div class="note note-warn">Above ~80km/week: add easy doubles rather than extending single runs — injury risk rises at this volume</div>' : ''}
         ${showLongRunWarning ? '<div class="note note-warn">Doc suggests 75–90 min is sufficient for 5k–HM focus — consider reducing your long run %</div>' : ''}
       </div>
@@ -771,7 +876,7 @@
      COPY AS TEXT
   ───────────────────────────────────────── */
   function buildPlanText(plan) {
-    const { weeklyKm, numQuality, race, longRunKm, longRunPct,
+    const { weeklyKm, numQuality, doubleQuality, race, longRunKm, longRunPct,
             actualQualityKm, allEasyKm, dayPlans,
             showVolumeWarning, showLongRunWarning, weekRange } = plan;
 
@@ -783,6 +888,9 @@
 
     const rows = dayPlans.map(p => {
       const day = DAY_FULL[p.label];
+      if (p.type === 'quality' && p.doubleSession) {
+        return `*${day}* 🔥🔥 Quality AM+PM\n  [AM] ${p.amWarmup} · ${p.amMain} ${p.amSub} · ${p.amCooldown}\n  [PM] ${p.pmWarmup} · ${p.pmMain} ${p.pmSub} · ${p.pmCooldown}`;
+      }
       if (p.type === 'quality') {
         return `*${day}* 🔥 Quality\n  ${p.warmup}\n  ${p.main} ${p.sub}\n  ${p.cooldown}`;
       }
@@ -794,7 +902,7 @@
           .replace('  +  ', ' + ');
         return `*${day}* Easy — ${km}`;
       }
-      if (p.type === 'longrun') return `*${day}* 🏔 Long Run — ${fmt(longRunKm)}km easy`;
+      if (p.type === 'longrun') return `*${day}* 🏔 ${p.main}`;
       if (p.type === 'rest')    return `*${day}* Rest 😴`;
     });
 
@@ -804,7 +912,7 @@
 
     return [
       `🏃 *Norwegian Singles — ${weekRange}*`,
-      `${weeklyKm}km · ${RACE_LABELS[race]} · ${numQuality}× Quality`,
+      `${weeklyKm}km · ${RACE_LABELS[race]} · ${numQuality}× Quality${doubleQuality ? ' (AM+PM)' : ''}`,
       '',
       `🟠 Quality ${qPct}% · ${fmt(actualQualityKm)}km`,
       `🔵 Long Run ${lrPct}% · ${fmt(longRunKm)}km`,

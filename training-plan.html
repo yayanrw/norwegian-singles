@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Training Plan — Norwegian Singles</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #0b1120;
+      color: #8daabe;
+      min-height: 100vh;
+      padding: 0 0 64px;
+    }
+
+    .container { max-width: 700px; margin: 0 auto; padding: 32px 16px 0; }
+
+    /* ── Nav ── */
+    .site-nav {
+      display: flex; justify-content: center; flex-wrap: wrap;
+      gap: 6px; padding: 14px 16px;
+      border-bottom: 1px solid #0f1f33;
+      background: #070e1a;
+    }
+    .nav-link {
+      font-size: 12px; font-weight: 700; letter-spacing: 0.8px;
+      text-transform: uppercase; text-decoration: none;
+      padding: 7px 16px; border-radius: 20px;
+      color: #2d4a63; transition: all 0.15s;
+    }
+    .nav-link:hover  { color: #5d84a0; background: #101c2e; }
+    .nav-link.active { background: #0ea5e9; color: #0b1120; }
+
+    /* ── Header ── */
+    header { text-align: center; margin-bottom: 36px; }
+    header h1 { font-size: 26px; font-weight: 800; color: #e2eef8; letter-spacing: -0.5px; }
+    header p  { font-size: 14px; color: #4a6a85; margin-top: 5px; }
+    .badge {
+      display: inline-block; margin-top: 10px;
+      font-size: 11px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase;
+      background: #0ea5e9; color: #0b1120; padding: 4px 10px; border-radius: 20px;
+    }
+
+    /* ── Cards ── */
+    .card {
+      background: #101c2e;
+      border-radius: 14px;
+      padding: 24px;
+      margin-bottom: 14px;
+      border: 1px solid #172236;
+    }
+    .card h2 {
+      font-size: 11px; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 1px;
+      color: #2d4a63; margin-bottom: 18px;
+    }
+
+    /* ── Import ── */
+    .import-textarea {
+      width: 100%; min-height: 120px;
+      background: #070e1a; border: 1.5px solid #172236;
+      border-radius: 9px; color: #8daabe;
+      font-family: 'SF Mono', 'Monaco', 'Inconsolata', monospace;
+      font-size: 11px; padding: 12px; resize: vertical;
+      transition: border-color 0.15s; outline: none; line-height: 1.5;
+    }
+    .import-textarea:focus  { border-color: #0ea5e9; }
+    .import-textarea::placeholder { color: #1e3a52; }
+
+    .btn-row { display: flex; gap: 10px; margin-top: 10px; }
+    .btn-primary {
+      flex: 1; padding: 12px;
+      background: #0ea5e9; color: #0b1120;
+      border: none; border-radius: 9px;
+      font-size: 13px; font-weight: 800; cursor: pointer;
+      transition: opacity 0.15s; letter-spacing: 0.3px;
+    }
+    .btn-primary:hover { opacity: 0.85; }
+    .btn-secondary {
+      padding: 12px 18px;
+      background: transparent; color: #2d4a63;
+      border: 1.5px solid #172236; border-radius: 9px;
+      font-size: 13px; font-weight: 600; cursor: pointer;
+      transition: all 0.15s;
+    }
+    .btn-secondary:hover { border-color: #2d4a63; color: #5d84a0; }
+
+    .error-msg {
+      background: #1f0a10; border: 1px solid #7f1d1d;
+      border-radius: 9px; padding: 12px 16px;
+      color: #fca5a5; font-size: 13px; margin-top: 10px;
+    }
+
+    /* ── Schema collapsible ── */
+    details {
+      margin-top: 14px;
+      background: #070e1a; border: 1px solid #172236;
+      border-radius: 10px; overflow: hidden;
+    }
+    summary {
+      padding: 12px 16px; font-size: 11px; font-weight: 700;
+      color: #2d4a63; cursor: pointer; list-style: none;
+      display: flex; align-items: center; justify-content: space-between;
+      user-select: none; letter-spacing: 0.5px; text-transform: uppercase;
+    }
+    summary::-webkit-details-marker { display: none; }
+    summary::after { content: '›'; font-size: 14px; transition: transform 0.2s; }
+    details[open] summary::after { transform: rotate(90deg); }
+    .schema-code {
+      padding: 0 16px 16px;
+      font-family: 'SF Mono', 'Monaco', monospace;
+      font-size: 11px; color: #4a6a85; white-space: pre; overflow-x: auto;
+      line-height: 1.7;
+    }
+
+    /* ── Current week callout ── */
+    .current-week-card {
+      background: linear-gradient(135deg, #0c1e38 0%, #101c2e 100%);
+      border: 1px solid #0ea5e9;
+      border-left: 3px solid #0ea5e9;
+      border-radius: 12px; padding: 16px 20px;
+      margin-bottom: 14px;
+    }
+    .cw-eyebrow {
+      font-size: 10px; font-weight: 700; letter-spacing: 1.5px;
+      text-transform: uppercase; color: #0ea5e9; margin-bottom: 8px;
+    }
+    .cw-main { font-size: 20px; font-weight: 800; color: #e2eef8; margin-bottom: 3px; }
+    .cw-sub  { font-size: 13px; color: #5d84a0; }
+    .cw-pills { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
+    .cw-pill {
+      font-size: 11px; font-weight: 700; padding: 4px 10px;
+      border-radius: 20px; letter-spacing: 0.3px;
+    }
+    .cw-pill-km  { background: rgba(14,165,233,0.15);  color: #38bdf8; }
+    .cw-pill-eg  { background: rgba(167,139,250,0.15); color: #a78bfa; }
+    .cw-pill-key { background: rgba(249,115,22,0.12);  color: #fb923c; }
+
+    /* ── Chart ── */
+    .chart-header {
+      display: flex; align-items: flex-start; justify-content: space-between;
+      margin-bottom: 14px; flex-wrap: wrap; gap: 8px;
+    }
+    .chart-title    { font-size: 15px; font-weight: 800; color: #e2eef8; }
+    .chart-race-tag { font-size: 11px; font-weight: 600; color: #4a6a85; margin-top: 3px; }
+
+    .legend-chips { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 14px; }
+    .legend-chip {
+      display: flex; align-items: center; gap: 5px;
+      font-size: 10px; font-weight: 700; color: #2d4a63;
+      text-transform: uppercase; letter-spacing: 0.5px;
+    }
+    .legend-dot  { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
+    .legend-line { width: 18px; height: 3px; border-radius: 2px; flex-shrink: 0; }
+
+    .chart-wrap { position: relative; height: 300px; }
+
+    /* ── Weekly table ── */
+    .plan-table { width: 100%; border-collapse: collapse; }
+    .plan-table th {
+      text-align: left; font-size: 10px; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 0.5px;
+      color: #1e3a52; padding: 0 8px 10px;
+      border-bottom: 1px solid #0f1f33;
+    }
+    .plan-table td {
+      font-size: 12px; color: #5d84a0; padding: 9px 8px;
+      border-bottom: 1px solid #0a1525; vertical-align: middle;
+    }
+    .plan-table tr:last-child td { border-bottom: none; }
+
+    .tr-current { background: rgba(14,165,233,0.06); }
+    .tr-current td { color: #8daabe; }
+    .tr-current td:first-child { border-left: 2px solid #0ea5e9; padding-left: 6px; }
+    .tr-past td { opacity: 0.38; }
+
+    .td-week  { font-weight: 800; color: #2d4a63; white-space: nowrap; }
+    .td-dates { white-space: nowrap; font-size: 11px; }
+    .td-label { font-weight: 700; }
+    .td-km    { font-weight: 700; color: #e2eef8; text-align: right; white-space: nowrap; }
+    .td-eg    { color: #a78bfa; text-align: right; white-space: nowrap; font-size: 11px; }
+    .td-key   { color: #fb923c; font-size: 11px; }
+
+    .cat-badge {
+      display: inline-block; font-size: 9px; font-weight: 700;
+      padding: 2px 6px; border-radius: 4px;
+      text-transform: uppercase; letter-spacing: 0.3px; margin-left: 5px;
+    }
+
+    .hidden { display: none; }
+
+    @media (max-width: 480px) {
+      .chart-wrap { height: 220px; }
+      .plan-table th:nth-child(2),
+      .plan-table td:nth-child(2) { display: none; }
+      .plan-table th:nth-child(6),
+      .plan-table td:nth-child(6) { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+<nav class="site-nav">
+  <a href="index.html" class="nav-link">Run Plan</a>
+  <a href="strength.html" class="nav-link">Strength</a>
+  <a href="hr-zones.html" class="nav-link">HR Zones</a>
+  <a href="longrun-card.html" class="nav-link">Long Run</a>
+  <a href="training-plan.html" class="nav-link active">Training Plan</a>
+</nav>
+
+<div class="container">
+
+  <header>
+    <h1>Training Plan</h1>
+    <p>Macro block visualizer — weekly mileage & elevation gain</p>
+    <span class="badge">Import from AI Chat</span>
+  </header>
+
+  <!-- ── Import card ── -->
+  <div class="card">
+    <h2>Import Plan JSON</h2>
+    <textarea class="import-textarea" id="jsonInput"
+      placeholder="Paste your JSON training plan here…"></textarea>
+    <div class="btn-row">
+      <button class="btn-primary" onclick="loadPlan()">Load Plan</button>
+      <button class="btn-secondary" onclick="clearPlan()">Clear</button>
+    </div>
+    <div id="importError" class="error-msg hidden"></div>
+
+    <details>
+      <summary>JSON Schema — copy this prompt to your AI chat</summary>
+      <pre class="schema-code" id="schemaDisplay"></pre>
+    </details>
+  </div>
+
+  <!-- ── Current week callout ── -->
+  <div class="current-week-card hidden" id="currentWeekCard"></div>
+
+  <!-- ── Chart card ── -->
+  <div class="card hidden" id="chartCard">
+    <div class="chart-header">
+      <div>
+        <div class="chart-title" id="chartTitle">—</div>
+        <div class="chart-race-tag" id="chartRaceTag"></div>
+      </div>
+    </div>
+    <div class="legend-chips">
+      <div class="legend-chip"><span class="legend-dot" style="background:#0ea5e9"></span>Base</div>
+      <div class="legend-chip"><span class="legend-dot" style="background:#f59e0b"></span>Build</div>
+      <div class="legend-chip"><span class="legend-dot" style="background:#f97316"></span>Peak</div>
+      <div class="legend-chip"><span class="legend-dot" style="background:#22c55e"></span>Taper</div>
+      <div class="legend-chip"><span class="legend-line" style="background:#a78bfa"></span>Elevation</div>
+    </div>
+    <div class="chart-wrap">
+      <canvas id="planChart"></canvas>
+    </div>
+  </div>
+
+  <!-- ── Weekly table card ── -->
+  <div class="card hidden" id="tableCard">
+    <h2>Weekly Breakdown</h2>
+    <div style="overflow-x:auto">
+      <table class="plan-table">
+        <thead>
+          <tr>
+            <th>W</th>
+            <th>Dates</th>
+            <th>Block</th>
+            <th style="text-align:right">KM</th>
+            <th style="text-align:right">EG</th>
+            <th>Key Activity</th>
+          </tr>
+        </thead>
+        <tbody id="planTableBody"></tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  const LS_KEY = 'norwegianSingles_trainingPlan';
+
+  const SCHEMA_TEXT = `Export my training plan as JSON using this exact schema:
+
+{
+  "plan_name": "BTS100 — Nov 7 2026",
+  "race_date": "2026-11-07",
+  "race_name": "BTS100",
+  "weeks": [
+    {
+      "week": 1,
+      "start_date": "2026-06-16",
+      "label": "REBUILD",
+      "category": "base",
+      "km": 55,
+      "elevation_m": 1600,
+      "key_activity": null
+    },
+    {
+      "week": 10,
+      "start_date": "2026-08-18",
+      "label": "ULTRA SIM 1",
+      "category": "peak",
+      "km": 75,
+      "elevation_m": 3000,
+      "key_activity": "Sat: 45km simulation run"
+    }
+  ]
+}
+
+Rules:
+• category must be exactly one of: "base" | "build" | "peak" | "taper"
+• start_date: ISO 8601 format YYYY-MM-DD (Monday of each week)
+• key_activity: string describing the standout session, or null
+• Deload weeks: assign the same category as the surrounding block phase
+• Output valid JSON only — no comments, no trailing commas`;
+
+  document.getElementById('schemaDisplay').textContent = SCHEMA_TEXT;
+
+  const CAT_COLOR = {
+    base:  '#0ea5e9',
+    build: '#f59e0b',
+    peak:  '#f97316',
+    taper: '#22c55e',
+  };
+  const CAT_COLOR_DIM = {
+    base:  'rgba(14,165,233,0.5)',
+    build: 'rgba(245,158,11,0.5)',
+    peak:  'rgba(249,115,22,0.5)',
+    taper: 'rgba(34,197,94,0.5)',
+  };
+  const CAT_BADGE = {
+    base:  'background:rgba(14,165,233,0.15);color:#38bdf8',
+    build: 'background:rgba(245,158,11,0.15);color:#fbbf24',
+    peak:  'background:rgba(249,115,22,0.15);color:#fb923c',
+    taper: 'background:rgba(34,197,94,0.12);color:#4ade80',
+  };
+
+  let chartInstance = null;
+
+  function parseDate(str) {
+    const [y, m, d] = str.split('-').map(Number);
+    return new Date(y, m - 1, d);
+  }
+
+  function endOfWeek(startStr) {
+    const d = parseDate(startStr);
+    d.setDate(d.getDate() + 6);
+    return d;
+  }
+
+  function fmtDate(d) {
+    if (typeof d === 'string') d = parseDate(d);
+    return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+  }
+
+  function detectCurrentWeek(weeks) {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    for (let i = 0; i < weeks.length; i++) {
+      const start = parseDate(weeks[i].start_date);
+      const end   = endOfWeek(weeks[i].start_date);
+      if (today >= start && today <= end) return i;
+    }
+    return -1;
+  }
+
+  function showError(msg) {
+    const el = document.getElementById('importError');
+    el.textContent = msg;
+    el.classList.remove('hidden');
+  }
+  function hideError() {
+    document.getElementById('importError').classList.add('hidden');
+  }
+
+  function validatePlan(data) {
+    if (!data || typeof data !== 'object') throw new Error('Expected a JSON object.');
+    if (!Array.isArray(data.weeks) || data.weeks.length === 0)
+      throw new Error('Missing or empty "weeks" array.');
+    const VALID = ['base','build','peak','taper'];
+    data.weeks.forEach((w, i) => {
+      const n = w.week ?? (i + 1);
+      if (typeof w.km !== 'number')          throw new Error(`Week ${n}: "km" must be a number.`);
+      if (typeof w.elevation_m !== 'number') throw new Error(`Week ${n}: "elevation_m" must be a number.`);
+      if (!w.start_date || !/^\d{4}-\d{2}-\d{2}$/.test(w.start_date))
+        throw new Error(`Week ${n}: "start_date" must be YYYY-MM-DD.`);
+      if (!VALID.includes(w.category))
+        throw new Error(`Week ${n}: category must be base / build / peak / taper.`);
+    });
+  }
+
+  function loadPlan() {
+    hideError();
+    const raw = document.getElementById('jsonInput').value.trim();
+    if (!raw) { showError('Paste your JSON plan first.'); return; }
+    let data;
+    try { data = JSON.parse(raw); }
+    catch (e) { showError('Invalid JSON — ' + e.message); return; }
+    try { validatePlan(data); }
+    catch (e) { showError(e.message); return; }
+    localStorage.setItem(LS_KEY, raw);
+    renderPlan(data);
+  }
+
+  function clearPlan() {
+    localStorage.removeItem(LS_KEY);
+    document.getElementById('jsonInput').value = '';
+    hideError();
+    ['currentWeekCard','chartCard','tableCard'].forEach(id =>
+      document.getElementById(id).classList.add('hidden'));
+    if (chartInstance) { chartInstance.destroy(); chartInstance = null; }
+  }
+
+  function renderPlan(data) {
+    const weeks = data.weeks;
+    const curIdx = detectCurrentWeek(weeks);
+    renderCurrentWeek(weeks, curIdx);
+    renderChart(weeks, curIdx, data);
+    renderTable(weeks, curIdx);
+    ['chartCard','tableCard'].forEach(id =>
+      document.getElementById(id).classList.remove('hidden'));
+  }
+
+  function renderCurrentWeek(weeks, idx) {
+    const card = document.getElementById('currentWeekCard');
+    if (idx < 0) { card.classList.add('hidden'); return; }
+    const w = weeks[idx];
+    const s = fmtDate(w.start_date);
+    const e = fmtDate(endOfWeek(w.start_date));
+    card.innerHTML = `
+      <div class="cw-eyebrow">Current Week — W${w.week} of ${weeks.length}</div>
+      <div class="cw-main">${w.label}</div>
+      <div class="cw-sub">${s} – ${e}</div>
+      <div class="cw-pills">
+        <span class="cw-pill cw-pill-km">${w.km} km</span>
+        <span class="cw-pill cw-pill-eg">${w.elevation_m.toLocaleString()}m EG</span>
+        ${w.key_activity ? `<span class="cw-pill cw-pill-key">${w.key_activity}</span>` : ''}
+      </div>`;
+    card.classList.remove('hidden');
+  }
+
+  function renderChart(weeks, curIdx, data) {
+    document.getElementById('chartTitle').textContent = data.plan_name || 'Training Plan';
+    const raceDate = data.race_date ? fmtDate(data.race_date) : null;
+    document.getElementById('chartRaceTag').textContent =
+      raceDate ? `${data.race_name || 'Race'} · ${raceDate}` : '';
+
+    const bgColors     = weeks.map((w, i) => i === curIdx ? CAT_COLOR[w.category]    : CAT_COLOR_DIM[w.category]);
+    const borderColors = weeks.map((w, i) => i === curIdx ? '#e2eef8' : 'transparent');
+    const borderWidths = weeks.map((w, i) => i === curIdx ? 2 : 0);
+    const ptRadius     = weeks.map((w, i) => i === curIdx ? 5 : 3);
+    const ptBg         = weeks.map((w, i) => i === curIdx ? '#e2eef8' : '#a78bfa');
+
+    if (chartInstance) chartInstance.destroy();
+
+    const ctx = document.getElementById('planChart').getContext('2d');
+    chartInstance = new Chart(ctx, {
+      data: {
+        labels: weeks.map(w => `W${w.week}`),
+        datasets: [
+          {
+            type: 'bar',
+            label: 'km',
+            data: weeks.map(w => w.km),
+            backgroundColor: bgColors,
+            borderColor: borderColors,
+            borderWidth: borderWidths,
+            borderRadius: 3,
+            yAxisID: 'y',
+            order: 2,
+          },
+          {
+            type: 'line',
+            label: 'Elevation (m)',
+            data: weeks.map(w => w.elevation_m),
+            borderColor: '#a78bfa',
+            backgroundColor: 'rgba(167,139,250,0.07)',
+            tension: 0.35,
+            pointRadius: ptRadius,
+            pointHoverRadius: 6,
+            pointBackgroundColor: ptBg,
+            borderWidth: 2,
+            fill: false,
+            yAxisID: 'y1',
+            order: 1,
+          },
+        ],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        interaction: { mode: 'index', intersect: false },
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            backgroundColor: '#070e1a',
+            titleColor: '#e2eef8',
+            bodyColor: '#5d84a0',
+            borderColor: '#172236',
+            borderWidth: 1,
+            padding: 12,
+            callbacks: {
+              title(items) {
+                const i = items[0].dataIndex;
+                const w = weeks[i];
+                return `W${w.week}  ·  ${fmtDate(w.start_date)} – ${fmtDate(endOfWeek(w.start_date))}`;
+              },
+              label: () => null,
+              afterBody(items) {
+                const i = items[0].dataIndex;
+                const w = weeks[i];
+                const lines = [
+                  `${w.label}  [${w.category.toUpperCase()}]`,
+                  `${w.km} km  ·  ${w.elevation_m.toLocaleString()}m EG`,
+                ];
+                if (w.key_activity) lines.push(`→ ${w.key_activity}`);
+                return lines;
+              },
+            },
+          },
+        },
+        scales: {
+          x: {
+            grid: { color: '#0f1f33' },
+            ticks: { color: '#2d4a63', font: { size: 10, weight: '700' }, maxRotation: 0 },
+          },
+          y: {
+            position: 'left',
+            grid: { color: '#0f1f33' },
+            ticks: { color: '#2d4a63', font: { size: 10 } },
+            title: { display: true, text: 'km', color: '#2d4a63', font: { size: 10 } },
+            beginAtZero: true,
+          },
+          y1: {
+            position: 'right',
+            grid: { drawOnChartArea: false },
+            ticks: { color: '#7c5fc4', font: { size: 10 } },
+            title: { display: true, text: 'EG (m)', color: '#7c5fc4', font: { size: 10 } },
+            beginAtZero: true,
+          },
+        },
+      },
+    });
+  }
+
+  function renderTable(weeks, curIdx) {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    document.getElementById('planTableBody').innerHTML = weeks.map((w, i) => {
+      const end = endOfWeek(w.start_date);
+      const isPast    = curIdx >= 0 ? i < curIdx : end < today;
+      const isCurrent = i === curIdx;
+      const rowCls    = isCurrent ? 'tr-current' : isPast ? 'tr-past' : '';
+      const badge     = CAT_BADGE[w.category] || '';
+      return `<tr class="${rowCls}">
+        <td class="td-week">${w.week}</td>
+        <td class="td-dates">${fmtDate(w.start_date)} – ${fmtDate(end)}</td>
+        <td class="td-label">${w.label}<span class="cat-badge" style="${badge}">${w.category}</span></td>
+        <td class="td-km">${w.km}</td>
+        <td class="td-eg">${w.elevation_m.toLocaleString()}m</td>
+        <td class="td-key">${w.key_activity || ''}</td>
+      </tr>`;
+    }).join('');
+  }
+
+  window.addEventListener('DOMContentLoaded', () => {
+    const saved = localStorage.getItem(LS_KEY);
+    if (!saved) return;
+    try {
+      const data = JSON.parse(saved);
+      validatePlan(data);
+      document.getElementById('jsonInput').value = saved;
+      renderPlan(data);
+    } catch {
+      localStorage.removeItem(LS_KEY);
+    }
+  });
+</script>
+</body>
+</html>
