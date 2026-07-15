@@ -10,6 +10,20 @@ This repo is the foundation for a **Norwegian Singles running training app**, ba
 
 ---
 
+## App Architecture
+
+5 self-contained static HTML pages, no build step, no dependencies except Chart.js (CDN, training-plan.html only).
+
+- **Shared nav** — `nav.js` injects the nav bar via `<script src="nav.js" data-active="run|strength|hr|longrun|plan"></script>` in each page's `<body>`. Also registers the service worker.
+- **PWA** — `manifest.webmanifest` + `icon.svg` + `sw.js` (cache-first over the 5 HTML pages). Bump `CACHE` in `sw.js` to invalidate.
+- **localStorage keys**:
+  - `ns_runplan`, `ns_strength`, `ns_hrzones` — per-page input persistence, restored on load (same try/catch-and-clear pattern as `training-plan.html`'s `LS_KEY`).
+  - `ns_profile` — cross-page bridge. HR Zones page writes `{ fthr, estHRmax, easyCeil, ssLo, ssHi }` on calculate; Run Plan page reads it to annotate rows with bpm caps, and writes `{ race, weeklyKm, raceDist, raceTime }` back into it.
+- **Real paces** — Run Plan's optional "Recent Race / TT" input drives a Riegel formula (`riegelPaceSecPerKm` in `index.html`, `T2 = T1 × (D2/D1)^1.06`) that computes per-interval and easy-run pace ranges. Blank input = pace labels only (unchanged legacy behavior).
+- **Test**: `node test/plan-math.test.mjs` — smoke-tests `selectAllWorkouts()` totals and the Riegel helpers by running `index.html`'s inline script in a `node:vm` context.
+
+---
+
 ## Norwegian Singles — Complete Domain Reference
 
 ### What It Is

@@ -3,6 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="manifest" href="manifest.webmanifest">
+  <meta name="theme-color" content="#0e0e0d">
+  <link rel="apple-touch-icon" href="icon.svg">
   <title>Strength Plan — Norwegian Singles</title>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -285,13 +288,7 @@
 </head>
 <body>
 
-<nav class="site-nav">
-  <a href="index.html" class="nav-link">Run Plan</a>
-  <a href="strength.html" class="nav-link active">Strength</a>
-  <a href="hr-zones.html" class="nav-link">HR Zones</a>
-  <a href="longrun-card.html" class="nav-link">Long Run</a>
-  <a href="training-plan.html" class="nav-link">Training Plan</a>
-</nav>
+<script src="nav.js" data-active="strength"></script>
 
 <div class="container">
 
@@ -390,6 +387,8 @@
   let selectedSessions = 2;
   let currentWeek = 1;
   let lastPlan = null;
+
+  const LS_KEY = 'ns_strength';
 
   /* ─────────────────────────────────────────
      BLOCK PROFILES
@@ -629,6 +628,12 @@
 
     lastPlan = { block, blockKey: selectedBlock, sessions, week: currentWeek, weekLabel: label, weekText: text, deload, equipSet: [...equipSet] };
     renderOutput(lastPlan);
+
+    try {
+      localStorage.setItem(LS_KEY, JSON.stringify({
+        selectedBlock, selectedSessions, currentWeek, equip: [...equipSet].filter(e => e !== 'bodyweight'),
+      }));
+    } catch {}
   }
 
   /* ─────────────────────────────────────────
@@ -795,6 +800,22 @@
     el.classList.remove('hidden');
     el.scrollIntoView({ behavior:'smooth', block:'center' });
   }
+
+  window.addEventListener('DOMContentLoaded', () => {
+    try {
+      const saved = JSON.parse(localStorage.getItem(LS_KEY) || 'null');
+      if (!saved) return;
+      if (saved.selectedBlock) selectBlock(saved.selectedBlock);
+      setSessions(saved.selectedSessions || 2);
+      currentWeek = saved.currentWeek || 1;
+      document.getElementById('weekVal').textContent = currentWeek;
+      (saved.equip || []).forEach(eq => {
+        const chip = document.querySelector(`#equipChips .chip[data-equip="${eq}"]`);
+        if (chip) chip.classList.add('selected');
+      });
+      if (saved.selectedBlock) generate();
+    } catch { localStorage.removeItem(LS_KEY); }
+  });
 </script>
 </body>
 </html>

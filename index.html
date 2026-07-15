@@ -3,6 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="manifest" href="manifest.webmanifest">
+  <meta name="theme-color" content="#0b1120">
+  <link rel="apple-touch-icon" href="icon.svg">
   <title>Norwegian Singles — Plan Generator</title>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -290,13 +293,7 @@
   </style>
 </head>
 <body>
-<nav class="site-nav">
-  <a href="index.html" class="nav-link active">Run Plan</a>
-  <a href="strength.html" class="nav-link">Strength</a>
-  <a href="hr-zones.html" class="nav-link">HR Zones</a>
-  <a href="longrun-card.html" class="nav-link">Long Run</a>
-  <a href="training-plan.html" class="nav-link">Training Plan</a>
-</nav>
+<script src="nav.js" data-active="run"></script>
 <div class="container">
 
   <header>
@@ -382,6 +379,25 @@
         </div>
       </div>
     </div>
+    <div class="form-row" style="margin-top:14px">
+      <div class="form-group">
+        <label for="recentRaceDist">Recent Race / TT (optional)</label>
+        <div class="select-wrap">
+          <select id="recentRaceDist">
+            <option value="">No recent race</option>
+            <option value="3k">3k</option>
+            <option value="5k">5k</option>
+            <option value="10k">10k</option>
+            <option value="hm">Half Marathon</option>
+            <option value="marathon">Marathon</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label for="recentRaceTime">Finish Time</label>
+        <input type="text" id="recentRaceTime" placeholder="mm:ss or h:mm:ss">
+      </div>
+    </div>
     <div class="toggle-row">
       <div class="toggle-text">
         <div class="toggle-label">Double Easy on Easy Days</div>
@@ -465,33 +481,71 @@
   // [session0=shortest, session1=medium, session2=longest] per race distance
   const INTERVAL_CFG = {
     '5k': [
-      { dist:1000, pace:'10k – 15k pace',   rest:'60s' },
-      { dist:1600, pace:'~10 mile pace',    rest:'60 – 90s' },
-      { dist:2000, pace:'HM pace',          rest:'90s' }
+      { dist:1000, pace:'10k – 15k pace',   rest:'60s',      paceDist:[10000,15000] },
+      { dist:1600, pace:'~10 mile pace',    rest:'60 – 90s', paceDist:[16093,16093] },
+      { dist:2000, pace:'HM pace',          rest:'90s',      paceDist:[21098,21098] }
     ],
     '10k': [
-      { dist:1000, pace:'10k – 15k pace',   rest:'60s' },
-      { dist:2000, pace:'HM – 25k pace',    rest:'90s' },
-      { dist:3000, pace:'25k – 30k pace',   rest:'120s' }
+      { dist:1000, pace:'10k – 15k pace',   rest:'60s',      paceDist:[10000,15000] },
+      { dist:2000, pace:'HM – 25k pace',    rest:'90s',      paceDist:[21098,25000] },
+      { dist:3000, pace:'25k – 30k pace',   rest:'120s',     paceDist:[25000,30000] }
     ],
     'hm': [
-      { dist:1600, pace:'~10 mile pace',    rest:'60 – 90s' },
-      { dist:2000, pace:'HM pace',          rest:'90s' },
-      { dist:3000, pace:'25k – 30k pace',   rest:'120s' }
+      { dist:1600, pace:'~10 mile pace',    rest:'60 – 90s', paceDist:[16093,16093] },
+      { dist:2000, pace:'HM pace',          rest:'90s',      paceDist:[21098,21098] },
+      { dist:3000, pace:'25k – 30k pace',   rest:'120s',     paceDist:[25000,30000] }
     ],
     'marathon': [
-      { dist:2000, pace:'HM – 25k pace',    rest:'90s' },
-      { dist:3000, pace:'25k – 30k pace',   rest:'120s' },
-      { dist:5000, pace:'30k – 42k pace',   rest:'120s' }
+      { dist:2000, pace:'HM – 25k pace',    rest:'90s',      paceDist:[21098,25000] },
+      { dist:3000, pace:'25k – 30k pace',   rest:'120s',     paceDist:[25000,30000] },
+      { dist:5000, pace:'30k – 42k pace',   rest:'120s',     paceDist:[30000,42195] }
     ],
     'ultra': [
-      { dist:1000, pace:'10k – 15k pace',   rest:'60s'      },
-      { dist:1600, pace:'~10 mile pace',    rest:'60 – 90s' },
-      { dist:2000, pace:'HM – 25k pace',    rest:'90s'      },
-      { dist:3000, pace:'30k+ pace',        rest:'120s'     },
-      { dist:5000, pace:'trail/race pace',  rest:'120s'     }
+      { dist:1000, pace:'10k – 15k pace',   rest:'60s',      paceDist:[10000,15000] },
+      { dist:1600, pace:'~10 mile pace',    rest:'60 – 90s', paceDist:[16093,16093] },
+      { dist:2000, pace:'HM – 25k pace',    rest:'90s',      paceDist:[21098,25000] },
+      { dist:3000, pace:'30k+ pace',        rest:'120s',     paceDist:[30000,35000] },
+      { dist:5000, pace:'trail/race pace',  rest:'120s',     paceDist:null }
     ]
   };
+
+  const RACE_DIST_M = { '3k':3000, '5k':5000, '10k':10000, 'hm':21097.5, 'marathon':42195 };
+
+  /* Riegel: T2 = T1 × (D2/D1)^1.06 — predicts equivalent time at any distance */
+  function riegelPaceSecPerKm(t1Sec, d1M, d2M) {
+    const t2 = t1Sec * Math.pow(d2M / d1M, 1.06);
+    return t2 / (d2M / 1000);
+  }
+
+  function parseTimeToSeconds(str) {
+    const parts = str.trim().split(':').map(Number);
+    if (parts.some(isNaN) || parts.length < 2 || parts.length > 3) return null;
+    return parts.length === 3
+      ? parts[0] * 3600 + parts[1] * 60 + parts[2]
+      : parts[0] * 60 + parts[1];
+  }
+
+  function fmtPace(secPerKm) {
+    const m = Math.floor(secPerKm / 60);
+    const s = Math.round(secPerKm % 60);
+    return `${m}:${String(s).padStart(2, '0')}`;
+  }
+
+  function paceRangeStr(loM, hiM, t1Sec, d1M) {
+    if (!t1Sec || !d1M) return null;
+    const pLo = riegelPaceSecPerKm(t1Sec, d1M, loM);
+    const pHi = riegelPaceSecPerKm(t1Sec, d1M, hiM);
+    return loM === hiM
+      ? `${fmtPace(pLo)}/km`
+      : `${fmtPace(Math.min(pLo, pHi))}–${fmtPace(Math.max(pLo, pHi))}/km`;
+  }
+
+  // ponytail: marathon-pace + 1:00–1:30/km is a crude easy-pace heuristic, swap for VDOT tables if it's ever off
+  function easyPaceRange(t1Sec, d1M) {
+    if (!t1Sec || !d1M) return null;
+    const mp = riegelPaceSecPerKm(t1Sec, d1M, RACE_DIST_M.marathon);
+    return `${fmtPace(mp + 60)}–${fmtPace(mp + 90)}/km`;
+  }
 
   /* ─────────────────────────────────────────
      DAY GRID — BUILD & UPDATE
@@ -604,7 +658,7 @@
   // Tries every combination of numSessions distinct distances from the race pool.
   // Picks the combo whose summed actual km is closest to totalQualityKm (25% target).
   // Ties broken by preferring the widest distance spread (most variety).
-  function selectAllWorkouts(totalQualityKm, race, numSessions) {
+  function selectAllWorkouts(totalQualityKm, race, numSessions, t1Sec, d1M) {
     const pool    = INTERVAL_CFG[race];
     const sessKm  = totalQualityKm / numSessions;
     const combos  = getCombinations(pool, numSessions);
@@ -631,14 +685,21 @@
     }
 
     return bestCombo.map(cfg => {
-      const reps = Math.max(1, Math.round((sessKm * 1000) / cfg.dist));
+      const reps    = Math.max(1, Math.round((sessKm * 1000) / cfg.dist));
+      const totalKm = parseFloat((reps * cfg.dist / 1000).toFixed(1));
+      const paceRange = cfg.paceDist ? paceRangeStr(cfg.paceDist[0], cfg.paceDist[1], t1Sec, d1M) : null;
+      const workMinutes = (t1Sec && d1M)
+        ? (riegelPaceSecPerKm(t1Sec, d1M, cfg.dist) * totalKm) / 60
+        : null;
       return {
         reps,
         dist:    cfg.dist,
         label:   distLabel(cfg.dist),
         pace:    cfg.pace,
         rest:    cfg.rest,
-        totalKm: parseFloat((reps * cfg.dist / 1000).toFixed(1))
+        totalKm,
+        paceRange,
+        workMinutes
       };
     });
   }
@@ -660,10 +721,22 @@
     const longRunPct  = parseInt(document.getElementById('longRunPct').value) / 100;
     const qualityPct  = parseInt(document.getElementById('qualityPct').value) / 100;
     const race        = document.getElementById('raceDistance').value;
+    const recentRaceDist = document.getElementById('recentRaceDist').value;
+    const recentRaceTime = document.getElementById('recentRaceTime').value.trim();
 
     if (isNaN(weeklyKm) || weeklyKm < 20) {
       showError('Enter a valid weekly volume (min 20 km).'); return;
     }
+
+    // ── Recent race → Riegel paces (optional) ──
+    const d1M  = recentRaceDist ? RACE_DIST_M[recentRaceDist] : null;
+    const t1Sec = recentRaceDist && recentRaceTime ? parseTimeToSeconds(recentRaceTime) : null;
+    const paceReady = !!(d1M && t1Sec);
+    const easyPaceRng = paceReady ? easyPaceRange(t1Sec, d1M) : null;
+
+    // ── HR profile from HR Zones page (optional) ──
+    let profile = null;
+    try { profile = JSON.parse(localStorage.getItem('ns_profile') || 'null'); } catch {}
 
     // ── Day assignments ──
     const assign = DAYS.map(d => document.getElementById(`day-${d}`).value);
@@ -701,7 +774,7 @@
     // Pick best-fitting interval formats across all sessions simultaneously,
     // minimising deviation from the 25% quality target.
     const totalSessions    = doubleQuality ? numQuality * 2 : numQuality;
-    const preWorkouts      = selectAllWorkouts(weeklyKm * qualityPct, race, totalSessions);
+    const preWorkouts      = selectAllWorkouts(weeklyKm * qualityPct, race, totalSessions, t1Sec, d1M);
     const actualQualityKm  = parseFloat(preWorkouts.reduce((s, w) => s + w.totalKm, 0).toFixed(1));
     const wuCdTotal        = parseFloat(((WARMUP_KM + COOLDOWN_KM) * totalSessions).toFixed(1));
     const easyDays         = countOf('easy');
@@ -716,6 +789,10 @@
       const label = DAY_SHORT[d];
       let main, sub, meta;
 
+      const qualCap  = profile ? ` · cap ${profile.ssHi} bpm` : '';
+      const easyCap  = profile ? ` (≤ ${profile.easyCeil} bpm)` : '';
+      const easyPace = easyPaceRng ? ` · ${easyPaceRng}` : '';
+
       if (type === 'quality') {
         if (doubleQuality) {
           const wAM = preWorkouts[qIdx++];
@@ -725,11 +802,11 @@
             doubleSession: true,
             amWarmup:   `${WARMUP_KM}km warm-up (easy)`,
             amMain:     `${wAM.reps} × ${wAM.label}`,
-            amSub:      `@ ${wAM.pace}  ·  ${wAM.rest} rest`,
+            amSub:      `@ ${wAM.pace}${wAM.paceRange ? ' (' + wAM.paceRange + ')' : ''}  ·  ${wAM.rest} rest${qualCap}`,
             amCooldown: `${COOLDOWN_KM}km cool-down (easy)`,
             pmWarmup:   `${WARMUP_KM}km warm-up (easy)`,
             pmMain:     `${wPM.reps} × ${wPM.label}`,
-            pmSub:      `@ ${wPM.pace}  ·  ${wPM.rest} rest`,
+            pmSub:      `@ ${wPM.pace}${wPM.paceRange ? ' (' + wPM.paceRange + ')' : ''}  ·  ${wPM.rest} rest${qualCap}`,
             pmCooldown: `${COOLDOWN_KM}km cool-down (easy)`,
             meta: `~${wAM.totalKm}km + ~${wPM.totalKm}km intervals  ·  ~${totalDay}km total day`,
           };
@@ -737,7 +814,7 @@
         const w        = preWorkouts[qIdx++];
         const totalDay = parseFloat((WARMUP_KM + w.totalKm + COOLDOWN_KM).toFixed(1));
         main     = `${w.reps} × ${w.label}`;
-        sub      = `@ ${w.pace}  ·  ${w.rest} rest`;
+        sub      = `@ ${w.pace}${w.paceRange ? ' (' + w.paceRange + ')' : ''}  ·  ${w.rest} rest${qualCap}`;
         meta     = `~${w.totalKm}km intervals  ·  ~${totalDay}km total day`;
         return { label, type,
           warmup:   `${WARMUP_KM}km warm-up (easy)`,
@@ -750,11 +827,11 @@
           const am = parseFloat((easyPerDayKm * 0.6).toFixed(1));
           const pm = parseFloat((easyPerDayKm - am).toFixed(1));
           main = `${fmt(am)}km easy (AM)  +  ${fmt(pm)}km easy (PM)`;
-          sub  = 'Below 70% Max HR  ·  Double day';
+          sub  = `Below 70% Max HR${easyCap}  ·  Double day${easyPace}`;
           meta = `${fmt(easyPerDayKm)}km total`;
         } else {
           main = `${fmt(easyPerDayKm)}km easy run`;
-          sub  = 'Below 70% Max HR';
+          sub  = `Below 70% Max HR${easyCap}${easyPace}`;
         }
       } else if (type === 'longrun') {
         if (backToBack) {
@@ -762,12 +839,12 @@
           const dayLabel = lrIdx === 0 ? 'Long Run — Day 1' : 'Long Run — Day 2 (tired legs)';
           main = `${fmt(km)}km ${dayLabel}`;
           sub  = lrIdx === 0
-            ? `Easy pace · Below 70% Max HR · ${Math.round(longRunPct * 100)}% total volume (split 60/40)`
-            : `Easy pace · Below 70% Max HR · simulate race fatigue`;
+            ? `Easy pace${easyPace} · Below 70% Max HR${easyCap} · ${Math.round(longRunPct * 100)}% total volume (split 60/40)`
+            : `Easy pace${easyPace} · Below 70% Max HR${easyCap} · simulate race fatigue`;
           lrIdx++;
         } else {
           main = `${fmt(longRunKm)}km long run`;
-          sub  = `Easy pace · Below 70% Max HR · ${Math.round(longRunPct * 100)}% of weekly volume`;
+          sub  = `Easy pace${easyPace} · Below 70% Max HR${easyCap} · ${Math.round(longRunPct * 100)}% of weekly volume`;
         }
       } else {
         main = 'Rest day';
@@ -783,17 +860,38 @@
     const showVolumeWarning = weeklyKm >= 80 && !doubleEasy;
     // Doc: 75-90 min long run is sufficient for 5k-HM focus (~15km at 6:00/km)
     const showLongRunWarning = ['5k','10k','hm'].includes(race) && longRunKm > 15;
+    // Doc: quality = 20-25% of weekly time (QUALITY_PCT_MIN)
+    const showQualityFloorWarning = qualityPct < 0.20;
+    // Doc: ~12k per quality session before injury risk rises (QUALITY_MAX_DISTANCE)
+    const showSessionDistWarning = preWorkouts.some(w => w.totalKm > 12);
+    // Doc: 50 min upper safe limit for quality interval time (SESSION_MAX_WORK_MIN)
+    const showSessionTimeWarning = paceReady && preWorkouts.some(w => w.workMinutes > 50);
+    const showHRHint = !profile;
 
     const weekStart  = document.getElementById('weekStart').value || getNextMonday();
     const weekRange  = getWeekRange(weekStart);
-    lastPlan = { weeklyKm, numQuality, doubleQuality, backToBack, b2bNonConsecutive, race, longRunKm, lr1Km, lr2Km, longRunPct, qualityPct, actualQualityKm, allEasyKm, dayPlans, showVolumeWarning, showLongRunWarning, weekRange };
+    lastPlan = { weeklyKm, numQuality, doubleQuality, backToBack, b2bNonConsecutive, race, longRunKm, lr1Km, lr2Km, longRunPct, qualityPct, actualQualityKm, allEasyKm, dayPlans,
+      showVolumeWarning, showLongRunWarning, showQualityFloorWarning, showSessionDistWarning, showSessionTimeWarning, showHRHint, weekRange };
     renderOutput(lastPlan);
+
+    try {
+      localStorage.setItem('ns_runplan', JSON.stringify({
+        weeklyKm, numQuality, hasRestDay, weekStart, assign, race,
+        longRunPct: Math.round(longRunPct * 100), qualityPct: Math.round(qualityPct * 100),
+        doubleEasy, doubleQuality, backToBack, recentRaceDist, recentRaceTime,
+      }));
+      const prevProfile = JSON.parse(localStorage.getItem('ns_profile') || '{}');
+      localStorage.setItem('ns_profile', JSON.stringify({
+        ...prevProfile, race, weeklyKm, raceDist: recentRaceDist || null, raceTime: recentRaceTime || null,
+      }));
+    } catch {}
   }
 
   /* ─────────────────────────────────────────
      RENDER OUTPUT
   ───────────────────────────────────────── */
-  function renderOutput({ weeklyKm, numQuality, doubleQuality, backToBack, b2bNonConsecutive, race, longRunKm, longRunPct, actualQualityKm, allEasyKm, dayPlans, showVolumeWarning, showLongRunWarning, weekRange }) {
+  function renderOutput({ weeklyKm, numQuality, doubleQuality, backToBack, b2bNonConsecutive, race, longRunKm, longRunPct, actualQualityKm, allEasyKm, dayPlans,
+                          showVolumeWarning, showLongRunWarning, showQualityFloorWarning, showSessionDistWarning, showSessionTimeWarning, showHRHint, weekRange }) {
     const qPct  = Math.round((actualQualityKm / weeklyKm) * 100);
     const ePct  = Math.round((allEasyKm       / weeklyKm) * 100);
     const lrPct = Math.round(longRunPct * 100);
@@ -865,6 +963,10 @@
         ${b2bNonConsecutive ? '<div class="note note-warn">B2B long runs work best on consecutive days — check your day assignments</div>' : ''}
         ${showVolumeWarning ? '<div class="note note-warn">Above ~80km/week: add easy doubles rather than extending single runs — injury risk rises at this volume</div>' : ''}
         ${showLongRunWarning ? '<div class="note note-warn">Doc suggests 75–90 min is sufficient for 5k–HM focus — consider reducing your long run %</div>' : ''}
+        ${showQualityFloorWarning ? '<div class="note note-warn">Quality below 20% of weekly volume — spec floor is 20–25%</div>' : ''}
+        ${showSessionDistWarning ? '<div class="note note-warn">A quality session exceeds ~12km — injury risk rises above this distance</div>' : ''}
+        ${showSessionTimeWarning ? '<div class="note note-warn">A quality session exceeds ~50 min of work time — consider trimming reps</div>' : ''}
+        ${showHRHint ? '<div class="note">Set your HR zones on the HR Zones page to see bpm targets on every row</div>' : ''}
       </div>
     `;
 
@@ -878,7 +980,8 @@
   function buildPlanText(plan) {
     const { weeklyKm, numQuality, doubleQuality, race, longRunKm, longRunPct,
             actualQualityKm, allEasyKm, dayPlans,
-            showVolumeWarning, showLongRunWarning, weekRange } = plan;
+            showVolumeWarning, showLongRunWarning, showQualityFloorWarning,
+            showSessionDistWarning, showSessionTimeWarning, weekRange } = plan;
 
     const qPct  = Math.round((actualQualityKm / weeklyKm) * 100);
     const ePct  = Math.round((allEasyKm        / weeklyKm) * 100);
@@ -907,8 +1010,11 @@
     });
 
     const warnings = [];
-    if (showVolumeWarning)  warnings.push('⚠ Above ~80km/week: switch to easy doubles');
-    if (showLongRunWarning) warnings.push('⚠ 5k–HM focus: 75–90 min long run is enough');
+    if (showVolumeWarning)      warnings.push('⚠ Above ~80km/week: switch to easy doubles');
+    if (showLongRunWarning)     warnings.push('⚠ 5k–HM focus: 75–90 min long run is enough');
+    if (showQualityFloorWarning) warnings.push('⚠ Quality below 20% of weekly volume');
+    if (showSessionDistWarning)  warnings.push('⚠ A quality session exceeds ~12km');
+    if (showSessionTimeWarning)  warnings.push('⚠ A quality session exceeds ~50 min of work time');
 
     return [
       `🏃 *Norwegian Singles — ${weekRange}*`,
@@ -955,8 +1061,37 @@
   ───────────────────────────────────────── */
   document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('weekStart').value = getNextMonday();
+
+    let saved = null;
+    try { saved = JSON.parse(localStorage.getItem('ns_runplan') || 'null'); }
+    catch { localStorage.removeItem('ns_runplan'); }
+
+    if (saved) {
+      document.getElementById('weeklyKm').value   = saved.weeklyKm;
+      document.getElementById('numQuality').value = saved.numQuality;
+      document.getElementById('hasRestDay').checked = saved.hasRestDay;
+      document.getElementById('weekStart').value   = saved.weekStart;
+      document.getElementById('raceDistance').value = saved.race;
+      document.getElementById('longRunPct').value  = saved.longRunPct;
+      document.getElementById('longRunPctVal').textContent = saved.longRunPct + '%';
+      document.getElementById('qualityPct').value  = saved.qualityPct;
+      document.getElementById('qualityPctVal').textContent = saved.qualityPct + '%';
+      document.getElementById('doubleEasy').checked    = saved.doubleEasy;
+      document.getElementById('doubleQuality').checked = saved.doubleQuality;
+      document.getElementById('backToBack').checked    = saved.backToBack;
+      document.getElementById('recentRaceDist').value  = saved.recentRaceDist || '';
+      document.getElementById('recentRaceTime').value  = saved.recentRaceTime || '';
+      const grid = document.getElementById('dayGrid');
+      grid._saved = {};
+      DAYS.forEach((d, i) => { grid._saved[d] = saved.assign[i]; });
+    }
+
     buildDayGrid();
     updateHint();
+    if (saved) {
+      onSettingsChange();
+      generatePlan();
+    }
   });
 </script>
 </body>

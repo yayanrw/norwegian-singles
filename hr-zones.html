@@ -3,6 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="manifest" href="manifest.webmanifest">
+  <meta name="theme-color" content="#110c0f">
+  <link rel="apple-touch-icon" href="icon.svg">
   <title>HR Zones — Norwegian Singles</title>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -421,13 +424,7 @@
 </head>
 <body>
 
-<nav class="site-nav">
-  <a href="index.html" class="nav-link">Run Plan</a>
-  <a href="strength.html" class="nav-link">Strength</a>
-  <a href="hr-zones.html" class="nav-link active">HR Zones</a>
-  <a href="longrun-card.html" class="nav-link">Long Run</a>
-  <a href="training-plan.html" class="nav-link">Training Plan</a>
-</nav>
+<script src="nav.js" data-active="hr"></script>
 
 <div class="container">
 
@@ -569,6 +566,9 @@
   let status     = 'trained';
   let lastResult = null;
 
+  const LS_KEY = 'ns_hrzones';
+  const PROFILE_KEY = 'ns_profile';
+
   /* FTHR is ~85–91% of HRmax depending on fitness */
   const HRMAX_RATIO = { recreational: 0.85, trained: 0.88, highly: 0.91 };
 
@@ -653,6 +653,14 @@
     lastResult = { avgHR, fthr, status, estHRmax, zones, easyCeil, qualLo, qualHi,
                    ssLo, ssHi, ssZ3lo, ssZ3hi, ssZ4lo, ssZ4hi };
     renderOutput(lastResult);
+
+    try {
+      localStorage.setItem(LS_KEY, JSON.stringify({ avgHR, status }));
+      const profile = JSON.parse(localStorage.getItem(PROFILE_KEY) || '{}');
+      localStorage.setItem(PROFILE_KEY, JSON.stringify({
+        ...profile, fthr, estHRmax, easyCeil, ssLo, ssHi, updated: Date.now(),
+      }));
+    } catch {}
   }
 
   /* ─────────────────────────────────────────
@@ -868,6 +876,18 @@
     el.classList.remove('hidden');
     el.scrollIntoView({ behavior: 'smooth', block: 'center' });
   }
+
+  window.addEventListener('DOMContentLoaded', () => {
+    try {
+      const saved = JSON.parse(localStorage.getItem(LS_KEY) || 'null');
+      if (!saved) return;
+      avgHR  = saved.avgHR;
+      status = saved.status;
+      document.getElementById('avgHRVal').textContent = avgHR;
+      setStatus(status);
+      calculate();
+    } catch { localStorage.removeItem(LS_KEY); }
+  });
 </script>
 </body>
 </html>
