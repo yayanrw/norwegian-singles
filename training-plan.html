@@ -185,6 +185,8 @@
     .td-label { font-weight: 700; }
     .td-km    { font-weight: 700; color: #e2eef8; text-align: right; white-space: nowrap; }
     .td-eg    { color: #a78bfa; text-align: right; white-space: nowrap; font-size: 11px; }
+    .td-km-act { color: #22d3ee; text-align: right; white-space: nowrap; font-size: 11px; }
+    .td-eg-act { color: #e879f9; text-align: right; white-space: nowrap; font-size: 11px; }
     .td-key   { color: #fb923c; font-size: 11px; }
 
     .cat-badge {
@@ -199,8 +201,12 @@
       .chart-wrap { height: 220px; }
       .plan-table th:nth-child(2),
       .plan-table td:nth-child(2) { display: none; }
-      .plan-table th:nth-child(6),
-      .plan-table td:nth-child(6) { display: none; }
+      .plan-table th:nth-child(5),
+      .plan-table td:nth-child(5) { display: none; }
+      .plan-table th:nth-child(7),
+      .plan-table td:nth-child(7) { display: none; }
+      .plan-table th:nth-child(8),
+      .plan-table td:nth-child(8) { display: none; }
     }
   </style>
 </head>
@@ -250,6 +256,8 @@
       <div class="legend-chip"><span class="legend-dot" style="background:#f97316"></span>Peak</div>
       <div class="legend-chip"><span class="legend-dot" style="background:#22c55e"></span>Taper</div>
       <div class="legend-chip"><span class="legend-line" style="background:#a78bfa"></span>Elevation</div>
+      <div class="legend-chip"><span class="legend-line" style="background:#22d3ee;border-top:2px dashed #22d3ee;height:0"></span>Actual km</div>
+      <div class="legend-chip"><span class="legend-line" style="background:#e879f9;border-top:2px dashed #e879f9;height:0"></span>Actual EG</div>
     </div>
     <div class="chart-wrap">
       <canvas id="planChart"></canvas>
@@ -267,7 +275,9 @@
             <th>Dates</th>
             <th>Block</th>
             <th style="text-align:right">KM</th>
+            <th style="text-align:right">Act. KM</th>
             <th style="text-align:right">EG</th>
+            <th style="text-align:right">Act. EG</th>
             <th>Key Activity</th>
           </tr>
         </thead>
@@ -486,6 +496,40 @@ Rules:
             yAxisID: 'y1',
             order: 1,
           },
+          {
+            type: 'line',
+            label: 'Actual km',
+            data: weeks.map(w => w.actual_km ?? null),
+            borderColor: '#22d3ee',
+            backgroundColor: '#22d3ee',
+            borderDash: [4, 3],
+            tension: 0.35,
+            pointRadius: 3,
+            pointHoverRadius: 6,
+            pointBackgroundColor: '#22d3ee',
+            borderWidth: 2,
+            fill: false,
+            spanGaps: false,
+            yAxisID: 'y',
+            order: 0,
+          },
+          {
+            type: 'line',
+            label: 'Actual EG',
+            data: weeks.map(w => w.actual_elevation_m ?? null),
+            borderColor: '#e879f9',
+            backgroundColor: '#e879f9',
+            borderDash: [4, 3],
+            tension: 0.35,
+            pointRadius: 3,
+            pointHoverRadius: 6,
+            pointBackgroundColor: '#e879f9',
+            borderWidth: 2,
+            fill: false,
+            spanGaps: false,
+            yAxisID: 'y1',
+            order: 0,
+          },
         ],
       },
       options: {
@@ -515,6 +559,9 @@ Rules:
                   `${w.label}  [${w.category.toUpperCase()}]`,
                   `${w.km} km  ·  ${w.elevation_m.toLocaleString()}m EG`,
                 ];
+                if (w.actual_km != null || w.actual_elevation_m != null) {
+                  lines.push(`Actual: ${w.actual_km ?? '—'} km  ·  ${w.actual_elevation_m != null ? w.actual_elevation_m.toLocaleString() + 'm' : '—'} EG`);
+                }
                 if (w.key_activity) lines.push(`→ ${w.key_activity}`);
                 return lines;
               },
@@ -559,7 +606,9 @@ Rules:
         <td class="td-dates">${fmtDate(w.start_date)} – ${fmtDate(end)}</td>
         <td class="td-label">${w.label}<span class="cat-badge" style="${badge}">${w.category}</span></td>
         <td class="td-km">${w.km}</td>
+        <td class="td-km-act">${w.actual_km != null ? w.actual_km : '—'}</td>
         <td class="td-eg">${w.elevation_m.toLocaleString()}m</td>
+        <td class="td-eg-act">${w.actual_elevation_m != null ? w.actual_elevation_m.toLocaleString() + 'm' : '—'}</td>
         <td class="td-key">${w.key_activity || ''}</td>
       </tr>`;
     }).join('');
